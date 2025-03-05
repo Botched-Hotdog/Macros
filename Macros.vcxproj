@@ -78,7 +78,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\WinInput;C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\WinForm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -121,16 +121,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WinInput\InputManager.cpp" />
+    <ClCompile Include="Input\InputThread.cpp" />
+    <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="WinForm\MainForm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WinInput\InputManager.h" />
+    <ClInclude Include="Input\InputThread.h" />
+    <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="WinForm\MainForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="WinInput\KeyData.h" />
+    <ClInclude Include="Input\KeyData.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WinForm\MainForm.resx">

@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <vector>  // TODO: remove when ActionList is relocated
 
 // Copied From https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 enum class EKeys : BYTE
@@ -127,8 +128,31 @@ enum class EKeys : BYTE
 
 struct KeyStroke
 {
+    EKeys SpecialKey;
     EKeys Key;
     DWORD MSDelay;
 
-    KeyStroke() : Key(EKeys::Undefined), MSDelay(5) {}
+    KeyStroke() : SpecialKey(EKeys::Undefined),  Key(EKeys::Undefined), MSDelay(5) {}
+};
+
+
+class ActionList
+{
+protected:
+    bool Loops;
+    std::vector<KeyStroke> Contents;
+public:
+    ActionList();
+    ActionList(std::vector<KeyStroke>* NewContents, bool bDoesLoop)
+    { 
+        Contents = *NewContents;
+        Loops = bDoesLoop;
+    };
+
+
+    __inline void AddAction(KeyStroke NewAction, int Location) { Contents.insert(Contents.begin() + Location, NewAction); };
+    __inline void AddAction(KeyStroke NewAction) { Contents.push_back(NewAction); };
+
+    __inline void RemoveAction(int Location) { Contents.erase(Contents.begin() + Location); };
+    __inline void ClearActions() { Contents.clear(); };
 };

@@ -21,7 +21,10 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinInput\InputManager.cpp">
+    <ClCompile Include="Input\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\InputThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +32,13 @@
     <ClInclude Include="WinForm\MainForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinInput\InputManager.h">
+    <ClInclude Include="Input\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinInput\KeyData.h">
+    <ClInclude Include="Input\KeyData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InputThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

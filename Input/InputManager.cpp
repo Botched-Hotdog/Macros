@@ -2,6 +2,18 @@
 
 using namespace std;
 
+InputManager::InputManager()
+{
+	ZeroMemory(RegInput, sizeof(RegInput));
+	ZeroMemory(SpecInput, sizeof(SpecInput));
+}
+
+InputManager::~InputManager()
+{
+	ZeroMemory(RegInput, sizeof(RegInput));
+	ZeroMemory(SpecInput, sizeof(SpecInput));
+}
+
 void InputManager::SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const EKeys Key)
 {
 	switch (Key)
@@ -38,6 +50,7 @@ bool InputManager::IsSpecialKey(const WORD KeyCode)
 	return Cond1 || Cond2 || Cond3 || Cond4 || Cond5;
 }
 
+
 bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, const DWORD MSDelay)
 {
 	const WORD SpecialKeyCode = static_cast<WORD>(SpecialKey);
@@ -51,26 +64,25 @@ bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, con
 
 	Sleep(MSDelay);
 
-	INPUT Input[4] = {};
-	ZeroMemory(Input, sizeof(Input));
+	ZeroMemory(SpecInput, sizeof(SpecInput));
 
-	Input[0].type = INPUT_KEYBOARD;
-	Input[0].ki.wVk = SpecialKeyCode;
-	Input[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+	SpecInput[0].type = INPUT_KEYBOARD;
+	SpecInput[0].ki.wVk = SpecialKeyCode;
+	SpecInput[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
-	Input[0].type = INPUT_KEYBOARD;
-	Input[0].ki.wVk = KeyCode;
-	Input[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+	SpecInput[1].type = INPUT_KEYBOARD;
+	SpecInput[1].ki.wVk = KeyCode;
+	SpecInput[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 	
-	Input[0].type = INPUT_KEYBOARD;
-	Input[0].ki.wVk = KeyCode;
-	Input[0].ki.dwFlags = KEYEVENTF_KEYUP;
+	SpecInput[2].type = INPUT_KEYBOARD;
+	SpecInput[2].ki.wVk = KeyCode;
+	SpecInput[2].ki.dwFlags = KEYEVENTF_KEYUP;
 
-	Input[0].type = INPUT_KEYBOARD;
-	Input[0].ki.wVk = SpecialKeyCode;
-	Input[0].ki.dwFlags = KEYEVENTF_KEYUP;
+	SpecInput[3].type = INPUT_KEYBOARD;
+	SpecInput[3].ki.wVk = SpecialKeyCode;
+	SpecInput[3].ki.dwFlags = KEYEVENTF_KEYUP;
 
-	UINT uS = SendInput(4, Input, sizeof(INPUT));
+	UINT uS = SendInput(4, SpecInput, sizeof(INPUT));
 	return (uS == 4);
 }
 
@@ -98,26 +110,25 @@ bool InputManager::MakeInput(const EKeys Key, const DWORD MSDelay)
 
 	Sleep(MSDelay);
 	
-	INPUT Input[2] = {};
-	ZeroMemory(Input, sizeof(Input));
+	ZeroMemory(RegInput, sizeof(RegInput));
 
-	Input[0].type = InputType;
-	Input[1].type = InputType;
+	RegInput[0].type = InputType;
+	RegInput[1].type = InputType;
 
 	if (InputType == INPUT_KEYBOARD)
 	{
-		Input[0].ki.wVk = KeyCode;
-		Input[1].ki.wVk = KeyCode;
+		RegInput[0].ki.wVk = KeyCode;
+		RegInput[1].ki.wVk = KeyCode;
 
-		Input[0].ki.dwFlags = DownFlag;
-		Input[1].ki.dwFlags = UpFlag;
+		RegInput[0].ki.dwFlags = DownFlag;
+		RegInput[1].ki.dwFlags = UpFlag;
 	}
 	else // INPUT_MOUSE
 	{
-		Input[0].mi.dwFlags = DownFlag;
-		Input[1].mi.dwFlags = UpFlag;
+		RegInput[0].mi.dwFlags = DownFlag;
+		RegInput[1].mi.dwFlags = UpFlag;
 	}
 
-	UINT uS = SendInput(2, Input, sizeof(INPUT));
+	UINT uS = SendInput(2, RegInput, sizeof(INPUT));
 	return (uS == 2);
 }

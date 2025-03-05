@@ -1,5 +1,5 @@
-#include "MainForm.h"
-#include "InputManager.h"
+#include "./WinForm/MainForm.h"
+#include "./Input/InputManager.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
