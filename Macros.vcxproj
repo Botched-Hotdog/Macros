@@ -78,10 +78,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\Macros\WinInput;C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\Macros\WinForm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\WinInput;C:\Users\tyoli\OneDrive\Documents\ENGR 1410 projects\Macros\WinForm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies />
+      <AdditionalDependencies>User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>Main</EntryPointSymbol>
     </Link>
