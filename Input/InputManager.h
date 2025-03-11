@@ -10,10 +10,12 @@ protected:
 	INPUT SpecInput[4] = {};
 
 	void SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const EKeys Key);
-	bool IsSpecialKey(const WORD KeyCode);
 public:
 	InputManager();
 	~InputManager();
+
+	static bool IsSpecialKey(const WORD KeyCode);
+
 
 	// Used For Inputs Such as: CTRL + "Key" | SHIFT + "Key" (Capital Letters). Returns True For Success
 	bool MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, const DWORD MSDelay);

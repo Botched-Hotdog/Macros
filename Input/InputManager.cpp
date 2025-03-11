@@ -4,14 +4,14 @@ using namespace std;
 
 InputManager::InputManager()
 {
-	ZeroMemory(RegInput, sizeof(RegInput));
-	ZeroMemory(SpecInput, sizeof(SpecInput));
+	std::memset(RegInput, 0, sizeof(RegInput));
+	std::memset(SpecInput, 0, sizeof(SpecInput));
 }
 
 InputManager::~InputManager()
 {
-	ZeroMemory(RegInput, sizeof(RegInput));
-	ZeroMemory(SpecInput, sizeof(SpecInput));
+	std::memset(RegInput, 0, sizeof(RegInput));
+	std::memset(SpecInput, 0, sizeof(SpecInput));
 }
 
 void InputManager::SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const EKeys Key)
@@ -56,27 +56,44 @@ bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, con
 	const WORD SpecialKeyCode = static_cast<WORD>(SpecialKey);
 	const WORD KeyCode = static_cast<WORD>(Key);
 	
-	if (!IsSpecialKey(SpecialKeyCode) || KeyCode < 7)
+	if (!IsSpecialKey(SpecialKeyCode))
 	{
 		// either SpecialKey or Key is Invalid
 		return false;
 	}
 
+	DWORD InputType = NULL;
+	DWORD DownFlag = NULL;
+	DWORD UpFlag = NULL;
+
+	if (KeyCode > 6) // Keyboard
+	{
+		InputType = INPUT_KEYBOARD;
+		DownFlag = KEYEVENTF_EXTENDEDKEY;
+		UpFlag = KEYEVENTF_KEYUP;
+
+	}
+	else // Mouse
+	{
+		InputType = INPUT_MOUSE;
+		SetMouseFlags(&DownFlag, &UpFlag, Key);
+	}
+
 	Sleep(MSDelay);
 
-	ZeroMemory(SpecInput, sizeof(SpecInput));
+	std::memset(SpecInput, 0, sizeof(SpecInput));
 
 	SpecInput[0].type = INPUT_KEYBOARD;
 	SpecInput[0].ki.wVk = SpecialKeyCode;
 	SpecInput[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
-	SpecInput[1].type = INPUT_KEYBOARD;
+	SpecInput[1].type = InputType;
 	SpecInput[1].ki.wVk = KeyCode;
-	SpecInput[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+	SpecInput[1].ki.dwFlags = DownFlag;
 	
-	SpecInput[2].type = INPUT_KEYBOARD;
+	SpecInput[2].type = InputType;
 	SpecInput[2].ki.wVk = KeyCode;
-	SpecInput[2].ki.dwFlags = KEYEVENTF_KEYUP;
+	SpecInput[2].ki.dwFlags = UpFlag;
 
 	SpecInput[3].type = INPUT_KEYBOARD;
 	SpecInput[3].ki.wVk = SpecialKeyCode;
@@ -110,7 +127,7 @@ bool InputManager::MakeInput(const EKeys Key, const DWORD MSDelay)
 
 	Sleep(MSDelay);
 	
-	ZeroMemory(RegInput, sizeof(RegInput));
+	std::memset(RegInput, 0, sizeof(RegInput));
 
 	RegInput[0].type = InputType;
 	RegInput[1].type = InputType;

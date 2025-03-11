@@ -124,11 +124,14 @@
     <ClCompile Include="Input\InputThread.cpp" />
     <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Settings\Settings.cpp" />
     <ClCompile Include="WinForm\MainForm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input\InputThread.h" />
     <ClInclude Include="Input\InputManager.h" />
+    <ClInclude Include="Settings\Settings.h" />
+    <ClInclude Include="WinForm\Common.h" />
     <ClInclude Include="WinForm\MainForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
