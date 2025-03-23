@@ -5,11 +5,25 @@
 #include <shared_mutex>
 #include <Windows.h>
 
-// Middle Man for Background and UI
+struct MacroEntry  // Used By Main Form To Display Current Hotkeys
+{
+	BYTE KeyCode;
+	std::string KeyName;
+};
+struct KeystrokeEntry : MacroEntry
+{
+	BYTE SpecialKeyCode;
+	std::string SpecialKeyName;
+
+	DWORD MSDelay;
+};
+
+
 class Settings
 {
 protected:	
 	std::vector<Macro> Macros;
+	bool bIsEditing;
 
 	CSimpleIniA IniManager;
 	WCHAR FilePathToINI;
@@ -26,7 +40,11 @@ public:
 
 	bool IsValidHotKey(const BYTE Hotkey); // Check If Hotkey Is Bound
 	bool GetSafeMacro(const BYTE Hotkey, Macro& CopyAdress); // Get Copy Of Macro For Specified Hotkey
+	bool GetSafeMacroList(std::vector<MacroEntry>& CopyAdress);
+	bool GetSafeKeystrokeList(const BYTE Hotkey, std::vector<KeystrokeEntry>& CopyAdress);
 
+	bool IsEditingMacros() { return bIsEditing; };
+	void SetEditingMacros(const bool Value) { bIsEditing = Value; };
 private:
 	Macro* FindMacroByHotKey(const BYTE Hotkey);
 

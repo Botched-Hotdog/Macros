@@ -36,15 +36,18 @@ void InputThread::ThreadBody()
 {
 	while (bShouldThreadRun)
 	{
-		BYTE KeyPress = CheckForHotkey();
-		if (KeyPress != 0)  // Valid?
+		if (!GlobalSettings.IsEditingMacros())
 		{
-			ProceessMacro(KeyPress);
+			BYTE KeyPress = CheckForHotkey();
+			if (KeyPress != 0)  // Valid?
+			{
+				ProceessMacro(KeyPress);
+			}
 		}
 	
 		if (bShouldThreadRun)
 		{
-			Sleep(10);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 }
@@ -65,7 +68,7 @@ BYTE InputThread::CheckForHotkey()
 			for (int i = 1; (i < 0x7F) && bShouldThreadRun; ++i) // US keyboard
 			{	
 				// 8th bit determines up or down https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate?redirectedfrom=MSDN
-				if ((OldKeyBoardState[i] & 0x80) && !(CurrentKeyboardState[i] & 0x80))  // Down, but wasnt down last time around. this will run anytime a change happens
+				if ((CurrentKeyboardState[i] & 0x80) && !(OldKeyBoardState[i] & 0x80))  // Down, but wasnt down last time around. this will run anytime a change happens
 				{
 					if (GlobalSettings.IsValidHotKey(i))
 					{
@@ -100,7 +103,7 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 		while ((CurrentIndex < MacroSize) && bShouldThreadRun)
 		{
 			double MS_ElapsedSinceExecution = std::chrono::duration_cast<std::chrono::milliseconds>(CurrentTime - LastExecution).count();
-			if (MS_ElapsedSinceExecution > SafeMacroCopy.Actions[CurrentIndex].MSDelay)
+			if (MS_ElapsedSinceExecution >= SafeMacroCopy.Actions[CurrentIndex].MSDelay)
 			{
 				PlayKey(SafeMacroCopy.Actions[CurrentIndex]);
 				CurrentIndex++;
@@ -120,6 +123,11 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
+			if (GlobalSettings.IsEditingMacros())
+			{
+				break; // Finished
+			}
+			
 			BYTE KeyPress = CheckForHotkey();
 			if (KeyPress != 0)
 			{
@@ -129,7 +137,9 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 				}
 				else  // Another Hotkey was pressed change directions and do this one.
 				{
-					if (KeyPress != static_cast<BYTE>(SafeMacroCopy.Actions[CurrentIndex - 1].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
+					const int LastIndex = (CurrentIndex < 1) ? MacroSize - 1 : CurrentIndex - 1;  // reach around back if looped
+
+					if (KeyPress != static_cast<BYTE>(SafeMacroCopy.Actions[LastIndex].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
 					{
 						if (GlobalSettings.GetSafeMacro(KeyPress, SafeMacroCopy))
 						{

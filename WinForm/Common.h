@@ -1,36 +1,36 @@
 #pragma once
+#include "../Settings/Settings.h"
 #include <msclr\marshal_cppstd.h>
 
 using namespace System;
 using namespace msclr::interop;
 
-ref class KeyItem
+ref class KeyItem  // Cannot Store KeystrokeEntry on MacroEditForm Becasue its not a Managed Type
 {
 public:
 	BYTE KeyCode = 0;
-	String^ Name;
+	BYTE SpeicalKeyCode = 0;
+
+	String^ KeyName;
+	String^ SpecialKeyName;
+
+	DWORD MSDelay = 0;
 
 public:
 	virtual String^ ToString() override
 	{
-		return Name;
+		if (SpeicalKeyCode != 0)
+		{
+			return SpecialKeyName + " + " + KeyName;
+		}
+		else
+		{
+			return KeyName;
+		}
 	}
 };
 
-
 // Came From Interoperability Section at https://en.wikipedia.org/wiki/C%2B%2B/CLI
-
-String^ ConvertToManagedString(std::string str)
-{
-	return gcnew String(msclr::interop::marshal_as<String^>(str.c_str()));
-}
-
-String^ ConvertToManagedString(const char* charPtr)
-{
-	return gcnew String(msclr::interop::marshal_as<String^>(charPtr));
-}
-
-std::string ConvertToUnmanagedString(String^ managed)
-{
-	return marshal_as<std::string>(managed);
-}
+String^ ConvertToManagedString(std::string str);
+String^ ConvertToManagedString(const char* charPtr);
+std::string ConvertToUnmanagedString(String^ managed);

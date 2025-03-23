@@ -125,6 +125,8 @@
     <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Settings\Settings.cpp" />
+    <ClCompile Include="WinForm\Common.cpp" />
+    <ClCompile Include="WinForm\KeystrokeEditForm.cpp" />
     <ClCompile Include="WinForm\MacroEditForm.cpp" />
     <ClCompile Include="WinForm\MainForm.cpp" />
   </ItemGroup>
@@ -133,6 +135,9 @@
     <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="Settings\Settings.h" />
     <ClInclude Include="WinForm\Common.h" />
+    <ClInclude Include="WinForm\KeystrokeEditForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="WinForm\MacroEditForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -142,6 +147,9 @@
     <ClInclude Include="Input\KeyData.h" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="WinForm\KeystrokeEditForm.resx">
+      <DependentUpon>WinForm\KeystrokeEditForm.h</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinForm\MacroEditForm.resx">
       <DependentUpon>WinForm\MacroEditForm.h</DependentUpon>
     </EmbeddedResource>
