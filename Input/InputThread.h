@@ -11,21 +11,23 @@ protected:
 	std::thread Thread;
 
 	bool bShouldThreadRun;
-	Settings* SettingsReference;
 
-	void ProcessKeys(const std::vector<KeyStroke>& Keys);
+	BYTE OldKeyBoardState[256];
+	BYTE CheckForHotkey();
+
+	void ProceessMacro(const BYTE Hotkey);
 	void PlayKey(const KeyStroke Key);
+
+
 public:
-	InputThread(Settings* SettingRef);
+	InputThread();
 
 	__inline bool IsThreadRunning() { return bShouldThreadRun; };
-	__inline void SetThreadHandlerReference(Settings* NewReference) { SettingsReference = NewReference; };
 
-	void RunThread();
+	bool RunThread();
 	void StopThread();
 
 	static void ThreadEntry(InputThread* This); // static function is required to use thread. std::thread(StaticFunction, this) 
 	void ThreadBody();
-
 };
 

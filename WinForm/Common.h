@@ -4,6 +4,20 @@
 using namespace System;
 using namespace msclr::interop;
 
+ref class KeyItem
+{
+public:
+	BYTE KeyCode = 0;
+	String^ Name;
+
+public:
+	virtual String^ ToString() override
+	{
+		return Name;
+	}
+};
+
+
 // Came From Interoperability Section at https://en.wikipedia.org/wiki/C%2B%2B/CLI
 
 String^ ConvertToManagedString(std::string str)

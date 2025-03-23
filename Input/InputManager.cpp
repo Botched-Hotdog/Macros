@@ -51,7 +51,7 @@ bool InputManager::IsSpecialKey(const WORD KeyCode)
 }
 
 
-bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, const DWORD MSDelay)
+bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key)
 {
 	const WORD SpecialKeyCode = static_cast<WORD>(SpecialKey);
 	const WORD KeyCode = static_cast<WORD>(Key);
@@ -79,8 +79,6 @@ bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, con
 		SetMouseFlags(&DownFlag, &UpFlag, Key);
 	}
 
-	Sleep(MSDelay);
-
 	std::memset(SpecInput, 0, sizeof(SpecInput));
 
 	SpecInput[0].type = INPUT_KEYBOARD;
@@ -103,7 +101,7 @@ bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, con
 	return (uS == 4);
 }
 
-bool InputManager::MakeInput(const EKeys Key, const DWORD MSDelay)
+bool InputManager::MakeInput(const EKeys Key)
 {
 	if (Key == EKeys::Undefined) return false;
 
@@ -125,8 +123,6 @@ bool InputManager::MakeInput(const EKeys Key, const DWORD MSDelay)
 		SetMouseFlags(&DownFlag, &UpFlag, Key);
 	}
 
-	Sleep(MSDelay);
-	
 	std::memset(RegInput, 0, sizeof(RegInput));
 
 	RegInput[0].type = InputType;

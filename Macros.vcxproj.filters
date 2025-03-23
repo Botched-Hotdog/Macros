@@ -30,6 +30,9 @@
     <ClCompile Include="Settings\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinForm\MacroEditForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WinForm\MainForm.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinForm\MacroEditForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

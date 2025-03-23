@@ -18,9 +18,9 @@ public:
 
 
 	// Used For Inputs Such as: CTRL + "Key" | SHIFT + "Key" (Capital Letters). Returns True For Success
-	bool MakeSpecialInput(const EKeys SpecialKey, const EKeys Key, const DWORD MSDelay);
+	bool MakeSpecialInput(const EKeys SpecialKey, const EKeys Key);
 	
 	// Used For Basic Key and Mouse Inputs. Returns True For Success
-	bool MakeInput(const EKeys Key, const DWORD MSDelay);
+	bool MakeInput(const EKeys Key);
 };
 

@@ -14,4 +14,4 @@ Windows Get Keyboard State: https://learn.microsoft.com/en-us/windows/win32/api/
 Windows Send Input Function: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput
 C++ WinForm Tutorial: https://www.youtube.com/watch?v=zv8DkkhBNR0
 C++/CLI Explanation: https://en.wikipedia.org/wiki/C%2B%2B/CLI
-Threads: https://en.cppreference.com/w/cpp/thread/thread & 
+Threads: https://en.cppreference.com/w/cpp/thread/thread & https://en.cppreference.com/w/cpp/thread/mutex
