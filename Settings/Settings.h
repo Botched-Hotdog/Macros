@@ -10,7 +10,7 @@ struct MacroEntry  // Used By Main Form To Display Current Hotkeys
 	BYTE KeyCode;
 	std::string KeyName;
 };
-struct KeystrokeEntry : MacroEntry
+struct KeystrokeEntry : public MacroEntry
 {
 	BYTE SpecialKeyCode;
 	std::string SpecialKeyName;
@@ -23,6 +23,7 @@ class Settings
 {
 protected:	
 	std::vector<Macro> Macros;
+	BYTE RunningMacro;
 	bool bIsEditing;
 
 	CSimpleIniA IniManager;
@@ -36,9 +37,13 @@ public:
 
 	bool AddMacro(const Macro& NewMacro);
 	bool RemoveMacro(const BYTE Hotkey);
-	bool OverrideMacro(const Macro& NewMacro); // Searches By Hotkey and replaces
+	bool OverrideMacro(const BYTE ExistingHotkey, const Macro& NewMacro); // Searches By Hotkey and replaces
 
 	bool IsValidHotKey(const BYTE Hotkey); // Check If Hotkey Is Bound
+	bool DoesMacroLoop(const BYTE Hotkey);
+
+	inline bool IsMacroRunning(const BYTE Hotkey) const { return RunningMacro == Hotkey; };
+	void SetRunningMacro(const BYTE Hotkey) { RunningMacro = Hotkey; };
 	inline bool IsEditingMacros() const { return bIsEditing; };
 	void SetEditingMacros(const bool Value) { bIsEditing = Value; };
 

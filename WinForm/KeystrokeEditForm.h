@@ -79,7 +79,7 @@ namespace Macros {
 			this->Key_Label->AutoSize = true;
 			this->Key_Label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Key_Label->Location = System::Drawing::Point(12, 18);
+			this->Key_Label->Location = System::Drawing::Point(12, 9);
 			this->Key_Label->Name = L"Key_Label";
 			this->Key_Label->Size = System::Drawing::Size(48, 20);
 			this->Key_Label->TabIndex = 9;
@@ -90,7 +90,7 @@ namespace Macros {
 			this->SpecKey_Label->AutoSize = true;
 			this->SpecKey_Label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->SpecKey_Label->Location = System::Drawing::Point(12, 58);
+			this->SpecKey_Label->Location = System::Drawing::Point(12, 43);
 			this->SpecKey_Label->Name = L"SpecKey_Label";
 			this->SpecKey_Label->Size = System::Drawing::Size(112, 20);
 			this->SpecKey_Label->TabIndex = 10;
@@ -101,7 +101,7 @@ namespace Macros {
 			this->Delay_Label->AutoSize = true;
 			this->Delay_Label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Delay_Label->Location = System::Drawing::Point(12, 92);
+			this->Delay_Label->Location = System::Drawing::Point(12, 98);
 			this->Delay_Label->Name = L"Delay_Label";
 			this->Delay_Label->Size = System::Drawing::Size(107, 20);
 			this->Delay_Label->TabIndex = 11;
@@ -125,12 +125,12 @@ namespace Macros {
 			// 
 			this->Key_ComboBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->Key_ComboBox->Font = (gcnew System::Drawing::Font(L"Verdana", 16.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			this->Key_ComboBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->Key_ComboBox->FormattingEnabled = true;
 			this->Key_ComboBox->Location = System::Drawing::Point(66, 9);
 			this->Key_ComboBox->Name = L"Key_ComboBox";
-			this->Key_ComboBox->Size = System::Drawing::Size(406, 34);
+			this->Key_ComboBox->Size = System::Drawing::Size(406, 24);
 			this->Key_ComboBox->TabIndex = 13;
 			this->Key_ComboBox->SelectionChangeCommitted += gcnew System::EventHandler(this, &KeystrokeEditForm::Key_ComboBox_SelectionChangeCommitted);
 			// 
@@ -138,12 +138,12 @@ namespace Macros {
 			// 
 			this->SpecKey_ComboBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->SpecKey_ComboBox->Font = (gcnew System::Drawing::Font(L"Verdana", 16.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			this->SpecKey_ComboBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->SpecKey_ComboBox->FormattingEnabled = true;
-			this->SpecKey_ComboBox->Location = System::Drawing::Point(130, 49);
+			this->SpecKey_ComboBox->Location = System::Drawing::Point(130, 39);
 			this->SpecKey_ComboBox->Name = L"SpecKey_ComboBox";
-			this->SpecKey_ComboBox->Size = System::Drawing::Size(342, 34);
+			this->SpecKey_ComboBox->Size = System::Drawing::Size(342, 24);
 			this->SpecKey_ComboBox->TabIndex = 14;
 			this->SpecKey_ComboBox->SelectionChangeCommitted += gcnew System::EventHandler(this, &KeystrokeEditForm::SpecKey_ComboBox_SelectionChangeCommitted);
 			// 
@@ -152,7 +152,7 @@ namespace Macros {
 			this->Delay_TextBox->Anchor = System::Windows::Forms::AnchorStyles::Left;
 			this->Delay_TextBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Delay_TextBox->Location = System::Drawing::Point(125, 89);
+			this->Delay_TextBox->Location = System::Drawing::Point(125, 95);
 			this->Delay_TextBox->Name = L"Delay_TextBox";
 			this->Delay_TextBox->Size = System::Drawing::Size(347, 26);
 			this->Delay_TextBox->TabIndex = 15;

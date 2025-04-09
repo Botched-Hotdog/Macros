@@ -5,7 +5,7 @@
 
 InputThread::InputThread()
 {
-	
+	// OldKeyBoardState[256] = {0};
 }
 
 bool InputThread::RunThread()
@@ -34,6 +34,7 @@ void InputThread::ThreadEntry(InputThread* This)
 }
 void InputThread::ThreadBody()
 {
+	
 	while (bShouldThreadRun)
 	{
 		if (!GlobalSettings.IsEditingMacros())
@@ -57,14 +58,12 @@ BYTE InputThread::CheckForHotkey()
 	BYTE CurrentKeyboardState[256] = { 0 };
 	BYTE KeyCode = 0;
 
+	GetKeyState(0);
 	if (GetKeyboardState(CurrentKeyboardState))
 	{
 		// Check for differences
 		if (std::memcmp(OldKeyBoardState, CurrentKeyboardState, sizeof(OldKeyBoardState)) != 0)
-		{
-			// check if a macro is running and if so make sure the input didnt originate from the macro
-			// if (GlobalSetting.IsMacroRunning())
-			
+		{		
 			for (int i = 1; (i < 0x7F) && bShouldThreadRun; ++i) // US keyboard
 			{	
 				// 8th bit determines up or down https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate?redirectedfrom=MSDN
@@ -88,30 +87,32 @@ BYTE InputThread::CheckForHotkey()
 
 void InputThread::ProceessMacro(const BYTE Hotkey)
 {
-	Macro SafeMacroCopy;
+	Macro MacroCopy;
 	KeyStroke CurrentKeyStroke;
 
-	if (GlobalSettings.GetMacroCopy(Hotkey, SafeMacroCopy))
+	if (GlobalSettings.GetMacroCopy(Hotkey, MacroCopy))
 	{
+		GlobalSettings.SetRunningMacro(Hotkey);
+
 		std::chrono::time_point<std::chrono::system_clock> LastExecution;
 		std::chrono::time_point<std::chrono::system_clock> CurrentTime;
-		LastExecution = std::chrono::system_clock::now();
+		CurrentTime = LastExecution = std::chrono::system_clock::now();
 		
-		int MacroSize = SafeMacroCopy.Actions.size(); 
+		int MacroSize = MacroCopy.Actions.size(); 
 		int CurrentIndex = 0;
 		
 		while ((CurrentIndex < MacroSize) && bShouldThreadRun)
 		{
 			double MS_ElapsedSinceExecution = std::chrono::duration_cast<std::chrono::milliseconds>(CurrentTime - LastExecution).count();
-			if (MS_ElapsedSinceExecution >= SafeMacroCopy.Actions[CurrentIndex].MSDelay)
+			if (MS_ElapsedSinceExecution >= MacroCopy.Actions[CurrentIndex].MSDelay)
 			{
-				PlayKey(SafeMacroCopy.Actions[CurrentIndex]);
+				PlayKey(MacroCopy.Actions[CurrentIndex]);
 				CurrentIndex++;
 			}
 
 			if (CurrentIndex >= MacroSize)
 			{
-				if (SafeMacroCopy.Loops)
+				if (MacroCopy.Loops)
 				{
 					CurrentIndex = 0;
 				}
@@ -131,7 +132,7 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 			BYTE KeyPress = CheckForHotkey();
 			if (KeyPress != 0)
 			{
-				if (KeyPress == static_cast<BYTE>(SafeMacroCopy.HotKey)) // Cancel
+				if (KeyPress == static_cast<BYTE>(MacroCopy.HotKey)) // Cancel
 				{
 					break; // Finished!
 				}
@@ -139,17 +140,21 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 				{
 					const int LastIndex = (CurrentIndex < 1) ? MacroSize - 1 : CurrentIndex - 1;  // reach around back if looped
 
-					if (KeyPress != static_cast<BYTE>(SafeMacroCopy.Actions[LastIndex].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
+					if (KeyPress != static_cast<BYTE>(MacroCopy.Actions[LastIndex].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
 					{
-						if (GlobalSettings.GetMacroCopy(KeyPress, SafeMacroCopy))
+						if (GlobalSettings.GetMacroCopy(KeyPress, MacroCopy))
 						{
-							int MacroSize = SafeMacroCopy.Actions.size();
+							GlobalSettings.SetRunningMacro(KeyPress);
+							
+							int MacroSize = MacroCopy.Actions.size();
 							int CurrentIndex = 0;
 						}
 					}
 				}
 			}
 		}
+
+		GlobalSettings.SetRunningMacro(0);
 	}
 }
 

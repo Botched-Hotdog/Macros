@@ -195,16 +195,16 @@ namespace Macros {
 
 			if (SelectedHotkey != 0)
 			{
-				// MAKE SURE MACRO ISNT RUNNING -----------------------------------------------------------------------------------------------
-				// if (GlobalSetting.IsMacroActve(SelectedHotkey))
-				
-				if (GlobalSettings.RemoveMacro(SelectedHotkey))
+				if (!GlobalSettings.IsMacroRunning(SelectedHotkey))
 				{
-					Redraw();
-				}
-				else // Macro Wasnt Found And Therfore Not Removed
-				{
-					// Do Error Popup or something
+					if (GlobalSettings.RemoveMacro(SelectedHotkey))
+					{
+						Redraw();
+					}
+					else // Macro Wasnt Found And Therfore Not Removed
+					{
+						// Do Error Popup or something
+					}
 				}
 			}
 		}

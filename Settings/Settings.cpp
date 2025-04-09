@@ -24,18 +24,18 @@ bool Settings::AddMacro(const Macro& NewMacro)
 {
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
 
-	if (!OverrideMacro(NewMacro))
+	if (!OverrideMacro(NewMacro.HotKey, NewMacro))
 	{
 		Macros.push_back(NewMacro);
 	}
 
 	return true;
 }
-bool Settings::OverrideMacro(const Macro& NewMacro)
+bool Settings::OverrideMacro(const BYTE ExistingHotkey, const Macro& NewMacro)
 {
 	bool Success = false;
 
-	if (Macro* FoundMacro = FindMacroByHotKey(NewMacro.HotKey))
+	if (Macro* FoundMacro = FindMacroByHotKey(ExistingHotkey))
 	{
 		FoundMacro->Actions.clear();
 
@@ -76,6 +76,23 @@ bool Settings::IsValidHotKey(const BYTE Hotkey)
 		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
 		{
 			Success = true;
+			break;
+		}
+	}
+
+	return Success;
+}
+
+bool Settings::DoesMacroLoop(const BYTE Hotkey)
+{
+	bool Success = false;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
+
+	for (const Macro& ExistingMacro : Macros)
+	{
+		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		{
+			Success = ExistingMacro.Loops;
 			break;
 		}
 	}
@@ -144,8 +161,8 @@ bool Settings::GetKeystrokesFromMacroCopy(const BYTE Hotkey, std::vector<Keystro
 			NewEntry.KeyCode = static_cast<BYTE>(KeyCode);
 			NewEntry.KeyName = KeyLookupTable[KeyCode].Name;
 
-			NewEntry.SpecialKeyCode = static_cast<BYTE>(KeyCode);
-			NewEntry.SpecialKeyName = KeyLookupTable[KeyCode].Name;
+			NewEntry.SpecialKeyCode = static_cast<BYTE>(SpecialKeyCode);
+			NewEntry.SpecialKeyName = KeyLookupTable[SpecialKeyCode].Name;
 
 			NewEntry.MSDelay = ExistingKeystroke.MSDelay;
 

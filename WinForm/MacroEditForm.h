@@ -53,7 +53,7 @@ namespace Macros {
 
 
 	private: System::Windows::Forms::Label^ Hotkey_Label;
-	private: System::Windows::Forms::ColumnHeader^ KeyCode_ColumnHeader;
+
 	private: System::Windows::Forms::ColumnHeader^ KeyName_ColumnHeader;
 	private: System::Windows::Forms::ColumnHeader^ MSDelay_ColumnHeader;
 	protected:
@@ -73,7 +73,6 @@ namespace Macros {
 		void InitializeComponent(void)
 		{
 			this->KeyStrokes_List = (gcnew System::Windows::Forms::ListView());
-			this->KeyCode_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->KeyName_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->MSDelay_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->Remove_Button = (gcnew System::Windows::Forms::Button());
@@ -89,9 +88,9 @@ namespace Macros {
 			this->KeyStrokes_List->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->KeyStrokes_List->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(3) {
-				this->KeyCode_ColumnHeader,
-					this->KeyName_ColumnHeader, this->MSDelay_ColumnHeader
+			this->KeyStrokes_List->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(2) {
+				this->KeyName_ColumnHeader,
+					this->MSDelay_ColumnHeader
 			});
 			this->KeyStrokes_List->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
@@ -106,20 +105,15 @@ namespace Macros {
 			this->KeyStrokes_List->View = System::Windows::Forms::View::Details;
 			this->KeyStrokes_List->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MacroEditForm::KeyStrokes_List_MouseDoubleClick);
 			// 
-			// KeyCode_ColumnHeader
-			// 
-			this->KeyCode_ColumnHeader->Text = L"Key Code";
-			this->KeyCode_ColumnHeader->Width = 72;
-			// 
 			// KeyName_ColumnHeader
 			// 
 			this->KeyName_ColumnHeader->Text = L"Key Name";
-			this->KeyName_ColumnHeader->Width = 180;
+			this->KeyName_ColumnHeader->Width = 220;
 			// 
 			// MSDelay_ColumnHeader
 			// 
 			this->MSDelay_ColumnHeader->Text = L"Delay";
-			this->MSDelay_ColumnHeader->Width = 80;
+			this->MSDelay_ColumnHeader->Width = 110;
 			// 
 			// Remove_Button
 			// 
@@ -220,8 +214,9 @@ namespace Macros {
 
 		}
 #pragma endregion
-	public: BYTE SelectedHotKey;
 	public: BYTE OldHotKey;
+
+	private: BYTE SelectedHotKey;
 	private: List<KeyItem^>^ TempKeystrokes;
 
 	private: void Redraw()
@@ -244,6 +239,8 @@ namespace Macros {
 		std::vector<KeystrokeEntry> KeystrokesCopy;
 		if (GlobalSettings.GetKeystrokesFromMacroCopy(SelectedHotKey, KeystrokesCopy))
 		{
+			Loops_CheckBox->Checked = GlobalSettings.DoesMacroLoop(SelectedHotKey);
+			
 			for (const KeystrokeEntry& Entry : KeystrokesCopy)
 			{
 				KeyItem^ NewItem = gcnew KeyItem;
@@ -253,6 +250,8 @@ namespace Macros {
 
 				NewItem->KeyName = ConvertToManagedString(Entry.KeyName);
 				NewItem->SpecialKeyName = ConvertToManagedString(Entry.SpecialKeyName);
+
+				NewItem->MSDelay = Entry.MSDelay;
 
 				TempKeystrokes->Add(NewItem);
 			}
@@ -322,9 +321,10 @@ namespace Macros {
 
 	private: System::Void Ok_Button_Click(System::Object^ sender, System::EventArgs^ e) 
 	{				
-		bool bIsHotkeyAvailable = !GlobalSettings.IsValidHotKey(SelectedHotKey) || SelectedHotKey == OldHotKey;
-		
-		if (bIsHotkeyAvailable && SelectedHotKey != 0)
+		bool bIsHotkeyValid = (!GlobalSettings.IsValidHotKey(SelectedHotKey) || SelectedHotKey == OldHotKey) && SelectedHotKey != 0;
+		bool bIsKeystrokeListValid = TempKeystrokes->Count > 0;
+
+		if (bIsHotkeyValid && bIsKeystrokeListValid)
 		{
 			Macro NewMacro;
 			NewMacro.Loops = Loops_CheckBox->Checked;
@@ -341,13 +341,13 @@ namespace Macros {
 				NewMacro.Actions.push_back(NewKey);
 			}
 			
-
-			if (GlobalSettings.AddMacro(NewMacro))
+			if (SelectedHotKey != OldHotKey && OldHotKey != 0)
 			{
-				// Write to INI
-				
-				DialogResult = System::Windows::Forms::DialogResult::OK;
-				Close();
+				if (GlobalSettings.OverrideMacro(OldHotKey, NewMacro)) CloseWindow();
+			}
+			else
+			{
+				if (GlobalSettings.AddMacro(NewMacro)) CloseWindow();
 			}
 		}
 		else
@@ -397,6 +397,14 @@ namespace Macros {
 			
 			Redraw();
 		}
+	}
+
+	private: void CloseWindow()
+	{
+		// Write to INI
+
+		DialogResult = System::Windows::Forms::DialogResult::OK;
+		Close();
 	}
 };
 }
