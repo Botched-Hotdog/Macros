@@ -145,5 +145,7 @@ struct Macro
 struct KeyLookup
 {
     const char* Name;
-    bool bIsValid; // Not all keys should be accessible
+    bool bIsValidKeystroke;
+    bool bIsValidHotKey;
+    bool bIsSpecialKey;
 };

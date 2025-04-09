@@ -5,21 +5,20 @@
 using namespace System;
 using namespace msclr::interop;
 
-ref class KeyItem  // Cannot Store KeystrokeEntry on MacroEditForm Becasue its not a Managed Type
+public ref class KeyItem  // Cannot Store KeystrokeEntry on MacroEditForm Becasue its not a Managed Type
 {
 public:
 	BYTE KeyCode = 0;
-	BYTE SpeicalKeyCode = 0;
+	BYTE SpecialKeyCode = 0;
 
 	String^ KeyName;
 	String^ SpecialKeyName;
 
 	DWORD MSDelay = 0;
 
-public:
 	virtual String^ ToString() override
 	{
-		if (SpeicalKeyCode != 0)
+		if (SpecialKeyCode != 0)
 		{
 			return SpecialKeyName + " + " + KeyName;
 		}
@@ -28,6 +27,8 @@ public:
 			return KeyName;
 		}
 	}
+
+	KeyItem() : KeyCode(0), SpecialKeyCode(0), KeyName(nullptr), SpecialKeyName(nullptr) , MSDelay(0) {};
 };
 
 // Came From Interoperability Section at https://en.wikipedia.org/wiki/C%2B%2B/CLI

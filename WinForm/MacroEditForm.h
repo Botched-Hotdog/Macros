@@ -53,6 +53,9 @@ namespace Macros {
 
 
 	private: System::Windows::Forms::Label^ Hotkey_Label;
+	private: System::Windows::Forms::ColumnHeader^ KeyCode_ColumnHeader;
+	private: System::Windows::Forms::ColumnHeader^ KeyName_ColumnHeader;
+	private: System::Windows::Forms::ColumnHeader^ MSDelay_ColumnHeader;
 	protected:
 
 
@@ -70,6 +73,9 @@ namespace Macros {
 		void InitializeComponent(void)
 		{
 			this->KeyStrokes_List = (gcnew System::Windows::Forms::ListView());
+			this->KeyCode_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
+			this->KeyName_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
+			this->MSDelay_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->Remove_Button = (gcnew System::Windows::Forms::Button());
 			this->Add_Button = (gcnew System::Windows::Forms::Button());
 			this->Ok_Button = (gcnew System::Windows::Forms::Button());
@@ -83,13 +89,37 @@ namespace Macros {
 			this->KeyStrokes_List->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
+			this->KeyStrokes_List->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(3) {
+				this->KeyCode_ColumnHeader,
+					this->KeyName_ColumnHeader, this->MSDelay_ColumnHeader
+			});
+			this->KeyStrokes_List->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->KeyStrokes_List->FullRowSelect = true;
+			this->KeyStrokes_List->GridLines = true;
 			this->KeyStrokes_List->HideSelection = false;
 			this->KeyStrokes_List->Location = System::Drawing::Point(13, 49);
 			this->KeyStrokes_List->Name = L"KeyStrokes_List";
 			this->KeyStrokes_List->Size = System::Drawing::Size(334, 230);
 			this->KeyStrokes_List->TabIndex = 0;
 			this->KeyStrokes_List->UseCompatibleStateImageBehavior = false;
+			this->KeyStrokes_List->View = System::Windows::Forms::View::Details;
 			this->KeyStrokes_List->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MacroEditForm::KeyStrokes_List_MouseDoubleClick);
+			// 
+			// KeyCode_ColumnHeader
+			// 
+			this->KeyCode_ColumnHeader->Text = L"Key Code";
+			this->KeyCode_ColumnHeader->Width = 72;
+			// 
+			// KeyName_ColumnHeader
+			// 
+			this->KeyName_ColumnHeader->Text = L"Key Name";
+			this->KeyName_ColumnHeader->Width = 180;
+			// 
+			// MSDelay_ColumnHeader
+			// 
+			this->MSDelay_ColumnHeader->Text = L"Delay";
+			this->MSDelay_ColumnHeader->Width = 80;
 			// 
 			// Remove_Button
 			// 
@@ -134,12 +164,12 @@ namespace Macros {
 			// 
 			this->Hotkey_ComboBox->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->Hotkey_ComboBox->Font = (gcnew System::Drawing::Font(L"Verdana", 16.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			this->Hotkey_ComboBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->Hotkey_ComboBox->FormattingEnabled = true;
-			this->Hotkey_ComboBox->Location = System::Drawing::Point(88, 8);
+			this->Hotkey_ComboBox->Location = System::Drawing::Point(88, 12);
 			this->Hotkey_ComboBox->Name = L"Hotkey_ComboBox";
-			this->Hotkey_ComboBox->Size = System::Drawing::Size(259, 34);
+			this->Hotkey_ComboBox->Size = System::Drawing::Size(259, 24);
 			this->Hotkey_ComboBox->TabIndex = 6;
 			this->Hotkey_ComboBox->SelectionChangeCommitted += gcnew System::EventHandler(this, &MacroEditForm::Hotkey_ComboBox_SelectionChangeCommitted);
 			// 
@@ -162,7 +192,7 @@ namespace Macros {
 			this->Hotkey_Label->AutoSize = true;
 			this->Hotkey_Label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Hotkey_Label->Location = System::Drawing::Point(12, 17);
+			this->Hotkey_Label->Location = System::Drawing::Point(12, 12);
 			this->Hotkey_Label->Name = L"Hotkey_Label";
 			this->Hotkey_Label->Size = System::Drawing::Size(70, 20);
 			this->Hotkey_Label->TabIndex = 8;
@@ -191,12 +221,13 @@ namespace Macros {
 		}
 #pragma endregion
 	public: BYTE SelectedHotKey;
+	public: BYTE OldHotKey;
 	private: List<KeyItem^>^ TempKeystrokes;
 
 	private: void Redraw()
 	{
 		KeyStrokes_List->Items->Clear();
-		
+
 		for (int i = 0; i < TempKeystrokes->Count; i++)
 		{
 			KeyItem^ Keystroke = TempKeystrokes[i];
@@ -210,15 +241,15 @@ namespace Macros {
 
 	private: void LoadKeystrokesFromSettings()
 	{
-		std::vector<KeystrokeEntry> SafeKeystrokesCopy;
-		if (GlobalSettings.GetSafeKeystrokeList(SelectedHotKey, SafeKeystrokesCopy))
+		std::vector<KeystrokeEntry> KeystrokesCopy;
+		if (GlobalSettings.GetKeystrokesFromMacroCopy(SelectedHotKey, KeystrokesCopy))
 		{
-			for (const KeystrokeEntry& Entry : SafeKeystrokesCopy)
+			for (const KeystrokeEntry& Entry : KeystrokesCopy)
 			{
 				KeyItem^ NewItem = gcnew KeyItem;
 				
 				NewItem->KeyCode = Entry.KeyCode;
-				NewItem->SpeicalKeyCode = Entry.SpecialKeyCode;
+				NewItem->SpecialKeyCode = Entry.SpecialKeyCode;
 
 				NewItem->KeyName = ConvertToManagedString(Entry.KeyName);
 				NewItem->SpecialKeyName = ConvertToManagedString(Entry.SpecialKeyName);
@@ -234,7 +265,28 @@ namespace Macros {
 		KeyStrokes_List->GridLines = true;
 
 		TempKeystrokes = gcnew List<KeyItem^>();
+
+		SelectedHotKey = OldHotKey;
 		if (SelectedHotKey != 0) LoadKeystrokesFromSettings();
+
+
+		std::vector<MacroEntry> ValidKeystrokes;
+		if (GlobalSettings.GetValidHotKeys(ValidKeystrokes))
+		{
+			for (const MacroEntry& Entry : ValidKeystrokes)
+			{
+				KeyItem^ Item = gcnew KeyItem();
+				Item->KeyCode = Entry.KeyCode;
+				Item->KeyName = ConvertToManagedString(Entry.KeyName);
+
+				int AddedIndex = Hotkey_ComboBox->Items->Add(Item);
+
+				if (Item->KeyCode == SelectedHotKey)
+				{
+					Hotkey_ComboBox->SelectedIndex = AddedIndex;
+				}
+			}
+		}
 
 		Redraw();
 	}
@@ -242,26 +294,22 @@ namespace Macros {
 
 	private: System::Void Add_Button_Click(System::Object^ sender, System::EventArgs^ e) 
 	{
-		KeystrokeEditForm^ EditWindow = gcnew KeystrokeEditForm;
-
-		if (KeyStrokes_List->SelectedItems->Count == 1)  // Something Is Selected. Edit it
+		SpawnKeystrokeEditForm();
+	}
+	private: System::Void KeyStrokes_List_MouseDoubleClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+	{
+		if (KeyStrokes_List->SelectedItems->Count == 1)
 		{
-			auto item = KeyStrokes_List->SelectedItems[0];
-			//EditWindow->SelectedHotKey = (BYTE)item->Tag;  // Let Window Know What we Are Editing
-		}
-
-		System::Windows::Forms::DialogResult Result = EditWindow->ShowDialog();  // Open Window
-		if (Result == System::Windows::Forms::DialogResult::OK)
-		{
-			Redraw();
+			SpawnKeystrokeEditForm();
 		}
 	}
+
 	private: System::Void Remove_Button_Click(System::Object^ sender, System::EventArgs^ e) 
 	{
 		if (KeyStrokes_List->SelectedItems->Count == 1)  // Ensure Only One Selection
 		{
 			auto item = KeyStrokes_List->SelectedItems[0];
-			BYTE SelectedIndex = (BYTE)item->Tag;
+			int SelectedIndex = (int)item->Tag;
 
 			TempKeystrokes->RemoveAt(SelectedIndex);
 			Redraw();
@@ -273,10 +321,10 @@ namespace Macros {
 	}
 
 	private: System::Void Ok_Button_Click(System::Object^ sender, System::EventArgs^ e) 
-	{	
-		bool Conds = true; // Check for valid inputs
+	{				
+		bool bIsHotkeyAvailable = !GlobalSettings.IsValidHotKey(SelectedHotKey) || SelectedHotKey == OldHotKey;
 		
-		if (Conds)
+		if (bIsHotkeyAvailable && SelectedHotKey != 0)
 		{
 			Macro NewMacro;
 			NewMacro.Loops = Loops_CheckBox->Checked;
@@ -287,7 +335,7 @@ namespace Macros {
 			{
 				KeyStroke NewKey;
 				NewKey.Key = static_cast<EKeys>(Keystroke->KeyCode);
-				NewKey.SpecialKey = static_cast<EKeys>(Keystroke->SpeicalKeyCode);
+				NewKey.SpecialKey = static_cast<EKeys>(Keystroke->SpecialKeyCode);
 				NewKey.MSDelay = Keystroke->MSDelay;
 
 				NewMacro.Actions.push_back(NewKey);
@@ -296,34 +344,57 @@ namespace Macros {
 
 			if (GlobalSettings.AddMacro(NewMacro))
 			{
+				// Write to INI
+				
 				DialogResult = System::Windows::Forms::DialogResult::OK;
 				Close();
 			}
 		}
-		
-		// Write to INI
+		else
+		{
+			// Prompt User That hotkey selection is invalid
+		}
 	}
 	
 
 	private: System::Void Hotkey_ComboBox_SelectionChangeCommitted(System::Object^ sender, System::EventArgs^ e) 
 	{
+		KeyItem^ Item = (KeyItem^)Hotkey_ComboBox->SelectedItem;
 
+		if (SelectedHotKey != Item->KeyCode) SelectedHotKey = Item->KeyCode;
 	}
 
 
-	private: System::Void KeyStrokes_List_MouseDoubleClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) 
+	private: void SpawnKeystrokeEditForm()
 	{
 		KeystrokeEditForm^ EditWindow = gcnew KeystrokeEditForm;
 
-		if (KeyStrokes_List->SelectedItems->Count == 1)  // Something Is Selected. Edit it
+		KeyItem^ SelectedItem = nullptr;
+		bool bAlreadyExists = false;
+
+		if (KeyStrokes_List->SelectedItems->Count == 1)
 		{
-			auto item = KeyStrokes_List->SelectedItems[0];
-			// EditWindow->SelectedHotKey = (BYTE)item->Tag;  // Let Window Know What we Are Editing
+			auto Item = KeyStrokes_List->SelectedItems[0];
+			int SelectedIndex = (int)Item->Tag;
+
+			SelectedItem = TempKeystrokes[SelectedIndex];
+			bAlreadyExists = true;
 		}
+		else
+		{
+			SelectedItem = gcnew KeyItem;
+		}
+
+		EditWindow->SelectedKeystrokeAddress = SelectedItem;
 
 		System::Windows::Forms::DialogResult Result = EditWindow->ShowDialog();  // Open Window
 		if (Result == System::Windows::Forms::DialogResult::OK)
 		{
+			if (!bAlreadyExists)
+			{
+				TempKeystrokes->Add(SelectedItem);
+			}
+			
 			Redraw();
 		}
 	}

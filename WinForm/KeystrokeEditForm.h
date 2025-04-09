@@ -1,4 +1,8 @@
 #pragma once
+#include "Common.h"
+#include "regex"
+
+#define MAX_DWORD_SIZE 4294967295
 
 namespace Macros {
 
@@ -115,6 +119,7 @@ namespace Macros {
 			this->Ok_Button->TabIndex = 12;
 			this->Ok_Button->Text = L"OK";
 			this->Ok_Button->UseVisualStyleBackColor = true;
+			this->Ok_Button->Click += gcnew System::EventHandler(this, &KeystrokeEditForm::Ok_Button_Click);
 			// 
 			// Key_ComboBox
 			// 
@@ -127,6 +132,7 @@ namespace Macros {
 			this->Key_ComboBox->Name = L"Key_ComboBox";
 			this->Key_ComboBox->Size = System::Drawing::Size(406, 34);
 			this->Key_ComboBox->TabIndex = 13;
+			this->Key_ComboBox->SelectionChangeCommitted += gcnew System::EventHandler(this, &KeystrokeEditForm::Key_ComboBox_SelectionChangeCommitted);
 			// 
 			// SpecKey_ComboBox
 			// 
@@ -139,6 +145,7 @@ namespace Macros {
 			this->SpecKey_ComboBox->Name = L"SpecKey_ComboBox";
 			this->SpecKey_ComboBox->Size = System::Drawing::Size(342, 34);
 			this->SpecKey_ComboBox->TabIndex = 14;
+			this->SpecKey_ComboBox->SelectionChangeCommitted += gcnew System::EventHandler(this, &KeystrokeEditForm::SpecKey_ComboBox_SelectionChangeCommitted);
 			// 
 			// Delay_TextBox
 			// 
@@ -149,6 +156,7 @@ namespace Macros {
 			this->Delay_TextBox->Name = L"Delay_TextBox";
 			this->Delay_TextBox->Size = System::Drawing::Size(347, 26);
 			this->Delay_TextBox->TabIndex = 15;
+			this->Delay_TextBox->TextChanged += gcnew System::EventHandler(this, &KeystrokeEditForm::Delay_TextBox_TextChanged);
 			// 
 			// KeystrokeEditForm
 			// 
@@ -172,7 +180,130 @@ namespace Macros {
 
 		}
 #pragma endregion
-	private: System::Void KeystrokeEditForm_Load(System::Object^ sender, System::EventArgs^ e) {
+	public: KeyItem^ SelectedKeystrokeAddress;
+	private: KeyItem^ TempKeystroke;
+
+	private: System::Void KeystrokeEditForm_Load(System::Object^ sender, System::EventArgs^ e) 
+	{
+		if (!SelectedKeystrokeAddress)  // Should Never Happen
+		{
+			DialogResult = System::Windows::Forms::DialogResult::Abort;
+			Close();
+
+			return;
+		}
+
+		TempKeystroke = gcnew KeyItem;
+
+		TempKeystroke->KeyName = SelectedKeystrokeAddress->KeyName;
+		TempKeystroke->KeyCode = SelectedKeystrokeAddress->KeyCode;
+		TempKeystroke->SpecialKeyName = SelectedKeystrokeAddress->SpecialKeyName;
+		TempKeystroke->SpecialKeyCode = SelectedKeystrokeAddress->SpecialKeyCode;
+		TempKeystroke->MSDelay = SelectedKeystrokeAddress->MSDelay;
+
+
+		std::vector<MacroEntry> ValidKeys;
+		if (GlobalSettings.GetValidKeystrokes(ValidKeys))
+		{
+			for (const MacroEntry& Entry : ValidKeys)
+			{
+				KeyItem^ Item = gcnew KeyItem();
+				Item->KeyCode = Entry.KeyCode;
+				Item->KeyName = ConvertToManagedString(Entry.KeyName);
+
+				int AddedIndex = Key_ComboBox->Items->Add(Item);
+
+				if (Item->KeyCode == TempKeystroke->KeyCode)
+				{
+					Key_ComboBox->SelectedIndex = AddedIndex;
+				}
+			}
+		}
+
+		std::vector<MacroEntry> ValidSpecialKeys;
+		if (GlobalSettings.GetValidSpecialKeys(ValidSpecialKeys))
+		{
+			for (const MacroEntry& Entry : ValidSpecialKeys)
+			{
+				KeyItem^ Item = gcnew KeyItem();
+				Item->KeyCode = Entry.KeyCode;
+				Item->KeyName = ConvertToManagedString(Entry.KeyName);
+
+				int AddedIndex = SpecKey_ComboBox->Items->Add(Item);
+
+				if (Item->KeyCode == TempKeystroke->SpecialKeyCode)
+				{
+					SpecKey_ComboBox->SelectedIndex = AddedIndex;
+				}
+			}
+		}
+
+		Delay_TextBox->Text = ConvertToManagedString(std::to_string(TempKeystroke->MSDelay));
 	}
-	};
+
+
+	private: System::Void Key_ComboBox_SelectionChangeCommitted(System::Object^ sender, System::EventArgs^ e) 
+	{
+		KeyItem^ Item = (KeyItem^)Key_ComboBox->SelectedItem;
+
+		if (TempKeystroke->KeyCode != Item->KeyCode)
+		{
+			TempKeystroke->KeyCode = Item->KeyCode;
+			TempKeystroke->KeyName = Item->KeyName;
+		}
+	}
+
+	private: System::Void SpecKey_ComboBox_SelectionChangeCommitted(System::Object^ sender, System::EventArgs^ e) 
+	{
+		KeyItem^ Item = (KeyItem^)SpecKey_ComboBox->SelectedItem;
+
+		if (TempKeystroke->SpecialKeyCode != Item->KeyCode)
+		{
+			TempKeystroke->SpecialKeyCode = Item->KeyCode;
+			TempKeystroke->SpecialKeyName = Item->KeyName;
+		}
+	}
+
+
+	private: System::Void Delay_TextBox_TextChanged(System::Object^ sender, System::EventArgs^ e) 
+	{
+		std::string TextEntry = ConvertToUnmanagedString(Delay_TextBox->Text);
+
+		// Remove all non-numeric characters
+		std::string NonNumericCharactersRemoved = std::regex_replace(TextEntry, std::regex("[^0-9]"), "");
+		if (TextEntry != NonNumericCharactersRemoved)
+		{
+			Delay_TextBox->Text = ConvertToManagedString(NonNumericCharactersRemoved);
+		}
+	}
+
+				
+	private: System::Void Ok_Button_Click(System::Object^ sender, System::EventArgs^ e)
+	{
+		bool bIsValidKey = TempKeystroke->KeyCode != 0;
+
+		int DelayEntry = std::stoi(ConvertToUnmanagedString(Delay_TextBox->Text));
+		bool bIsValidDelay = (DelayEntry >= 1) && (DelayEntry < MAX_DWORD_SIZE);
+
+		if (bIsValidKey && bIsValidDelay)
+		{	
+			if (SelectedKeystrokeAddress)
+			{
+				SelectedKeystrokeAddress->KeyName = TempKeystroke->KeyName;
+				SelectedKeystrokeAddress->KeyCode = TempKeystroke->KeyCode;
+				SelectedKeystrokeAddress->SpecialKeyName = TempKeystroke->SpecialKeyName;
+				SelectedKeystrokeAddress->SpecialKeyCode = TempKeystroke->SpecialKeyCode;
+				SelectedKeystrokeAddress->MSDelay = (DWORD)DelayEntry;
+
+				DialogResult = System::Windows::Forms::DialogResult::OK;
+			}
+			else
+			{
+				DialogResult = System::Windows::Forms::DialogResult::Abort;
+			}
+		
+			Close();
+		}
+	}
+};
 }

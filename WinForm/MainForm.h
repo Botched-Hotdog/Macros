@@ -42,6 +42,8 @@ namespace Macros {
 	private: System::Windows::Forms::Button^ Add_Button;
 	private: System::Windows::Forms::Button^ Remove_Button;
 	private: System::Windows::Forms::ListView^ Macros_List;
+	private: System::Windows::Forms::ColumnHeader^ KeyCode_ColumnHeader;
+	private: System::Windows::Forms::ColumnHeader^ KeyName_ColumnHeader;
 
 
 
@@ -68,6 +70,8 @@ namespace Macros {
 			this->Add_Button = (gcnew System::Windows::Forms::Button());
 			this->Remove_Button = (gcnew System::Windows::Forms::Button());
 			this->Macros_List = (gcnew System::Windows::Forms::ListView());
+			this->KeyCode_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
+			this->KeyName_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->SuspendLayout();
 			// 
 			// Add_Button
@@ -101,13 +105,32 @@ namespace Macros {
 			this->Macros_List->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
+			this->Macros_List->Columns->AddRange(gcnew cli::array< System::Windows::Forms::ColumnHeader^  >(2) {
+				this->KeyCode_ColumnHeader,
+					this->KeyName_ColumnHeader
+			});
+			this->Macros_List->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->Macros_List->FullRowSelect = true;
+			this->Macros_List->GridLines = true;
 			this->Macros_List->HideSelection = false;
 			this->Macros_List->Location = System::Drawing::Point(12, 12);
 			this->Macros_List->Name = L"Macros_List";
 			this->Macros_List->Size = System::Drawing::Size(335, 267);
-			this->Macros_List->TabIndex = 3;
+			this->Macros_List->TabIndex = 0;
 			this->Macros_List->UseCompatibleStateImageBehavior = false;
+			this->Macros_List->View = System::Windows::Forms::View::Details;
 			this->Macros_List->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::Macros_List_MouseDoubleClick);
+			// 
+			// KeyCode_ColumnHeader
+			// 
+			this->KeyCode_ColumnHeader->Text = L"Key Code";
+			this->KeyCode_ColumnHeader->Width = 80;
+			// 
+			// KeyName_ColumnHeader
+			// 
+			this->KeyName_ColumnHeader->Text = L"Key Name";
+			this->KeyName_ColumnHeader->Width = 220;
 			// 
 			// MainForm
 			// 
@@ -133,7 +156,7 @@ namespace Macros {
 		Macros_List->Items->Clear();
 
 		std::vector<MacroEntry> AvaliableMacros;
-		if (GlobalSettings.GetSafeMacroList(AvaliableMacros))
+		if (GlobalSettings.GetExistingMacrosCopy(AvaliableMacros))
 		{
 			for (const MacroEntry& ExistingMacro : AvaliableMacros)
 			{
@@ -147,30 +170,20 @@ namespace Macros {
 
 	private: System::Void MainForm_Load(System::Object^ sender, System::EventArgs^ e) 
 	{
-		Macros_List->FullRowSelect = true;
-		Macros_List->GridLines = true;
-
 		Redraw();
 	}
 
 
 	private: System::Void Macros_List_MouseDoubleClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) 
 	{
-		if (Macros_List->SelectedItems->Count == 1)  // Ensure Only One Selection
+		if (Macros_List->SelectedItems->Count == 1)
 		{
-			auto item = Macros_List->SelectedItems[0];
-
-			MacroEditForm^ EditWindow = gcnew MacroEditForm;
-			EditWindow->SelectedHotKey = (BYTE) item->Tag;  // Let Window Know What we Are Editing
-
-			GlobalSettings.SetEditingMacros(true);
-			System::Windows::Forms::DialogResult Result = EditWindow->ShowDialog();  // Open Window
-			if (Result == System::Windows::Forms::DialogResult::OK)
-			{
-				GlobalSettings.SetEditingMacros(false);
-				Redraw();
-			}
+			SpawnMacroEditForm();
 		}
+	}
+	private: System::Void Add_Button_Click(System::Object^ sender, System::EventArgs^ e)
+	{
+		SpawnMacroEditForm();
 	}
 
 	private: System::Void Remove_Button_Click(System::Object^ sender, System::EventArgs^ e) 
@@ -201,14 +214,15 @@ namespace Macros {
 		}
 	}
 
-	private: System::Void Add_Button_Click(System::Object^ sender, System::EventArgs^ e) 
+
+	private: void SpawnMacroEditForm()
 	{
 		MacroEditForm^ EditWindow = gcnew MacroEditForm;
-		
-		if (Macros_List->SelectedItems->Count == 1)  // Something Is Selected. Edit it
+
+		if (Macros_List->SelectedItems->Count == 1)
 		{
 			auto item = Macros_List->SelectedItems[0];
-			EditWindow->SelectedHotKey = (BYTE)item->Tag;  // Let Window Know What we Are Editing
+			EditWindow->OldHotKey = (BYTE)item->Tag;  // Let Window Know What we Are Editing
 		}
 
 		GlobalSettings.SetEditingMacros(true);

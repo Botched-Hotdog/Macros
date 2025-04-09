@@ -91,13 +91,13 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 	Macro SafeMacroCopy;
 	KeyStroke CurrentKeyStroke;
 
-	if (GlobalSettings.GetSafeMacro(Hotkey, SafeMacroCopy))
+	if (GlobalSettings.GetMacroCopy(Hotkey, SafeMacroCopy))
 	{
 		std::chrono::time_point<std::chrono::system_clock> LastExecution;
 		std::chrono::time_point<std::chrono::system_clock> CurrentTime;
 		LastExecution = std::chrono::system_clock::now();
 		
-		int MacroSize = SafeMacroCopy.Actions.size();
+		int MacroSize = SafeMacroCopy.Actions.size(); 
 		int CurrentIndex = 0;
 		
 		while ((CurrentIndex < MacroSize) && bShouldThreadRun)
@@ -141,7 +141,7 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 
 					if (KeyPress != static_cast<BYTE>(SafeMacroCopy.Actions[LastIndex].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
 					{
-						if (GlobalSettings.GetSafeMacro(KeyPress, SafeMacroCopy))
+						if (GlobalSettings.GetMacroCopy(KeyPress, SafeMacroCopy))
 						{
 							int MacroSize = SafeMacroCopy.Actions.size();
 							int CurrentIndex = 0;

@@ -2,18 +2,34 @@
 
 Settings GlobalSettings;
 
+
+Macro* Settings::FindMacroByHotKey(const BYTE Hotkey)
+{
+	Macro* Result = nullptr;
+
+	for (Macro& ExistingMacro : Macros)
+	{
+		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		{
+			Result = &ExistingMacro;
+			break;
+		}
+	}
+
+	return Result;
+}
+
+
 bool Settings::AddMacro(const Macro& NewMacro)
 {
-	bool Success = false;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
 
 	if (!OverrideMacro(NewMacro))
 	{
 		Macros.push_back(NewMacro);
-		Success = true;
 	}
 
-	return Success;
+	return true;
 }
 bool Settings::OverrideMacro(const Macro& NewMacro)
 {
@@ -67,7 +83,8 @@ bool Settings::IsValidHotKey(const BYTE Hotkey)
 	return Success;
 }
 
-bool Settings::GetSafeMacro(const BYTE Hotkey, Macro& CopyAdress)
+
+bool Settings::GetMacroCopy(const BYTE Hotkey, Macro& CopyAddress)
 {
 	bool Success = false;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
@@ -76,7 +93,7 @@ bool Settings::GetSafeMacro(const BYTE Hotkey, Macro& CopyAdress)
 	{
 		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
 		{
-			CopyAdress = ExistingMacro;  // Copy
+			CopyAddress = ExistingMacro;  // Copy
 			
 			Success = true;
 			break;
@@ -86,36 +103,36 @@ bool Settings::GetSafeMacro(const BYTE Hotkey, Macro& CopyAdress)
 	return Success;
 }
 
-bool Settings::GetSafeMacroList(std::vector<MacroEntry>& CopyAdress)
+bool Settings::GetExistingMacrosCopy(std::vector<MacroEntry>& CopyAddress)
 {
 	bool Success = true;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
 
-	CopyAdress.reserve(Macros.size());
+	CopyAddress.reserve(Macros.size());
 
 	for (const Macro& ExistingMacro : Macros)
 	{
-		if (!KeyLookupTable[ExistingMacro.HotKey].bIsValid) continue;
+		if (!KeyLookupTable[ExistingMacro.HotKey].bIsValidHotKey) continue;
 
 		MacroEntry NewEntry;
 		NewEntry.KeyCode = ExistingMacro.HotKey;
 		NewEntry.KeyName = KeyLookupTable[ExistingMacro.HotKey].Name;
 
 
-		CopyAdress.push_back(NewEntry);
+		CopyAddress.push_back(NewEntry);
 	}
 
 	return Success;
 }
 
-bool Settings::GetSafeKeystrokeList(const BYTE Hotkey, std::vector<KeystrokeEntry>& CopyAdress)
+bool Settings::GetKeystrokesFromMacroCopy(const BYTE Hotkey, std::vector<KeystrokeEntry>& CopyAddress)
 {
 	bool Success = true;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
 
 	if (Macro* ExistingMacro = FindMacroByHotKey(Hotkey))
 	{
-		CopyAdress.reserve(ExistingMacro->Actions.size());
+		CopyAddress.reserve(ExistingMacro->Actions.size());
 		
 		for (const KeyStroke& ExistingKeystroke : ExistingMacro->Actions)
 		{
@@ -133,27 +150,72 @@ bool Settings::GetSafeKeystrokeList(const BYTE Hotkey, std::vector<KeystrokeEntr
 			NewEntry.MSDelay = ExistingKeystroke.MSDelay;
 
 
-			CopyAdress.push_back(NewEntry);
+			CopyAddress.push_back(NewEntry);
 		}
 
-		Success = t
+		Success = true;
 	}
 
 	return Success;
 }
 
-Macro* Settings::FindMacroByHotKey(const BYTE Hotkey)
-{
-	Macro* Result = nullptr;
 
-	for (Macro& ExistingMacro : Macros)
+bool Settings::GetValidKeystrokes(std::vector<MacroEntry>& CopyAddress)
+{
+	bool Success = true;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
+
+	for (int i = 1; i < 0x7F; ++i) // Don't need to go thru all the keys
 	{
-		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		if (KeyLookupTable[i].bIsValidKeystroke)
 		{
-			Result = &ExistingMacro;
-			break;
+			MacroEntry NewEntry;
+			NewEntry.KeyName = KeyLookupTable[i].Name;
+			NewEntry.KeyCode = i;
+
+			CopyAddress.push_back(NewEntry);
 		}
 	}
 
-	return Result;
+	return Success;
+}
+
+bool Settings::GetValidHotKeys(std::vector<MacroEntry>& CopyAddress)
+{
+	bool Success = true;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
+
+	for (int i = 1; i < 0x7F; ++i) // Don't need to go thru all the keys
+	{
+		if (KeyLookupTable[i].bIsValidHotKey)
+		{
+			MacroEntry NewEntry;
+			NewEntry.KeyName = KeyLookupTable[i].Name;
+			NewEntry.KeyCode = i;
+
+			CopyAddress.push_back(NewEntry);
+		}
+	}
+
+	return Success;
+}
+
+bool Settings::GetValidSpecialKeys(std::vector<MacroEntry>& CopyAddress)
+{
+	bool Success = true;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
+
+	for (int i = 1; i < 0x7F; ++i) // Don't need to go thru all the keys
+	{
+		if (KeyLookupTable[i].bIsSpecialKey)
+		{
+			MacroEntry NewEntry;
+			NewEntry.KeyName = KeyLookupTable[i].Name;
+			NewEntry.KeyCode = i;
+
+			CopyAddress.push_back(NewEntry);
+		}
+	}
+
+	return Success;
 }
