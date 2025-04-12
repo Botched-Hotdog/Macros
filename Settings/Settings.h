@@ -1,6 +1,5 @@
 #pragma once
 #include "../Input/KeyData.h"
-#include "../SimpleIni/SimpleIni.h"
 #include <vector>
 #include <shared_mutex>
 #include <Windows.h>
@@ -26,14 +25,14 @@ protected:
 	BYTE RunningMacro;
 	bool bIsEditing;
 
-	CSimpleIniA IniManager;
-	WCHAR FilePathToINI;
+	//CSimpleIniA IniManager;
+	const char* IniFile;
 
 	std::shared_mutex ProtectSettings;
 public:
-	// bool Initialize(WCHAR* FileName);
-	// bool WriteToIni();
-	// bool ReadFromIni();
+	 bool Initialize(const char* FileName);
+	 bool WriteToIni();
+	 bool ReadFromIni();
 
 	bool AddMacro(const Macro& NewMacro);
 	bool RemoveMacro(const BYTE Hotkey);

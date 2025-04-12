@@ -10,11 +10,14 @@ InputThread::InputThread()
 
 bool InputThread::RunThread()
 {
-	bool Success = true;
+	bool Success = false;
 
-	//if (GlobalSettings.Initalize("Enter INI Here"))
-	bShouldThreadRun = true;
-	Thread = std::thread(ThreadEntry, this);
+	if (GlobalSettings.Initialize("Settings.txt"))
+	{
+		Success = true;
+		bShouldThreadRun = true;
+		Thread = std::thread(ThreadEntry, this);
+	}
 
 	return Success;
 }
@@ -103,11 +106,14 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 		
 		while ((CurrentIndex < MacroSize) && bShouldThreadRun)
 		{
+			CurrentTime = std::chrono::system_clock::now();
 			double MS_ElapsedSinceExecution = std::chrono::duration_cast<std::chrono::milliseconds>(CurrentTime - LastExecution).count();
 			if (MS_ElapsedSinceExecution >= MacroCopy.Actions[CurrentIndex].MSDelay)
 			{
 				PlayKey(MacroCopy.Actions[CurrentIndex]);
 				CurrentIndex++;
+
+				LastExecution = std::chrono::system_clock::now();
 			}
 
 			if (CurrentIndex >= MacroSize)
@@ -132,7 +138,7 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 			BYTE KeyPress = CheckForHotkey();
 			if (KeyPress != 0)
 			{
-				if (KeyPress == static_cast<BYTE>(MacroCopy.HotKey)) // Cancel
+				if (KeyPress == MacroCopy.HotKey) // Cancel
 				{
 					break; // Finished!
 				}
@@ -140,7 +146,7 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 				{
 					const int LastIndex = (CurrentIndex < 1) ? MacroSize - 1 : CurrentIndex - 1;  // reach around back if looped
 
-					if (KeyPress != static_cast<BYTE>(MacroCopy.Actions[LastIndex].Key))  // Make Sure Our Macro Didn't Enter Another Hotkey
+					if (KeyPress != MacroCopy.Actions[LastIndex].Key)  // Make Sure Our Macro Didn't Enter Another Hotkey
 					{
 						if (GlobalSettings.GetMacroCopy(KeyPress, MacroCopy))
 						{

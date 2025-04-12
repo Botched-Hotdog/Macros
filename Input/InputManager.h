@@ -9,7 +9,7 @@ protected:
 	INPUT RegInput[2] = {};
 	INPUT SpecInput[4] = {};
 
-	void SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const EKeys Key);
+	void SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const BYTE Key);
 public:
 	InputManager();
 	~InputManager();
@@ -18,9 +18,9 @@ public:
 
 
 	// Used For Inputs Such as: CTRL + "Key" | SHIFT + "Key" (Capital Letters). Returns True For Success
-	bool MakeSpecialInput(const EKeys SpecialKey, const EKeys Key);
+	bool MakeSpecialInput(const BYTE SpecialKey, const BYTE Key);
 	
 	// Used For Basic Key and Mouse Inputs. Returns True For Success
-	bool MakeInput(const EKeys Key);
+	bool MakeInput(const BYTE Key);
 };
 

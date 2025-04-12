@@ -5,9 +5,9 @@ using namespace System;
 using namespace System::Windows::Forms;
 
 void Main(array<String^>^ args)
-{
+{	
 	InputThread BackgroundProcess;
-	
+
 	if (BackgroundProcess.RunThread())
 	{
 		Application::EnableVisualStyles();

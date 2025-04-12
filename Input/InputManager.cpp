@@ -14,24 +14,24 @@ InputManager::~InputManager()
 	std::memset(SpecInput, 0, sizeof(SpecInput));
 }
 
-void InputManager::SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const EKeys Key)
+void InputManager::SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const BYTE Key)
 {
 	switch (Key)
 	{
-	case EKeys::LeftMouse:
+	case 1:
 		*DownFlag = MOUSEEVENTF_LEFTDOWN;
 		*UpFlag = MOUSEEVENTF_LEFTUP;
 		break;
-	case EKeys::RightMouse:
+	case 2:
 		*DownFlag = MOUSEEVENTF_RIGHTDOWN;
 		*UpFlag = MOUSEEVENTF_RIGHTUP;
 		break;
-	case EKeys::MiddleMouse:
+	case 4:
 		*DownFlag = MOUSEEVENTF_MIDDLEDOWN;
 		*UpFlag = MOUSEEVENTF_MIDDLEUP;
 		break;
-	case EKeys::XMouse1:
-	case EKeys::XMouse2:
+	case 5:
+	case 6:
 		*DownFlag = MOUSEEVENTF_XDOWN;
 		*UpFlag = MOUSEEVENTF_XUP;
 		break;
@@ -51,7 +51,7 @@ bool InputManager::IsSpecialKey(const WORD KeyCode)
 }
 
 
-bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key)
+bool InputManager::MakeSpecialInput(const BYTE SpecialKey, const BYTE Key)
 {
 	const WORD SpecialKeyCode = static_cast<WORD>(SpecialKey);
 	const WORD KeyCode = static_cast<WORD>(Key);
@@ -101,9 +101,9 @@ bool InputManager::MakeSpecialInput(const EKeys SpecialKey, const EKeys Key)
 	return (uS == 4);
 }
 
-bool InputManager::MakeInput(const EKeys Key)
+bool InputManager::MakeInput(const BYTE Key)
 {
-	if (Key == EKeys::Undefined) return false;
+	if (Key == 0) return false;
 
 	const WORD KeyCode = static_cast<WORD>(Key);
 	DWORD InputType = NULL;

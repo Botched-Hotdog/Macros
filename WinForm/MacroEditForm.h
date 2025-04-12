@@ -334,8 +334,8 @@ namespace Macros {
 			for each (KeyItem^ Keystroke in TempKeystrokes)
 			{
 				KeyStroke NewKey;
-				NewKey.Key = static_cast<EKeys>(Keystroke->KeyCode);
-				NewKey.SpecialKey = static_cast<EKeys>(Keystroke->SpecialKeyCode);
+				NewKey.Key = Keystroke->KeyCode;
+				NewKey.SpecialKey = Keystroke->SpecialKeyCode;
 				NewKey.MSDelay = Keystroke->MSDelay;
 
 				NewMacro.Actions.push_back(NewKey);
@@ -401,10 +401,15 @@ namespace Macros {
 
 	private: void CloseWindow()
 	{
-		// Write to INI
+		if (GlobalSettings.WriteToIni())
+		{
+			DialogResult = System::Windows::Forms::DialogResult::OK;
+			Close();
+		}
+		else
+		{
 
-		DialogResult = System::Windows::Forms::DialogResult::OK;
-		Close();
+		}
 	}
 };
 }

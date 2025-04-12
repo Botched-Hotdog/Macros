@@ -223,6 +223,11 @@ namespace Macros {
 		std::vector<MacroEntry> ValidSpecialKeys;
 		if (GlobalSettings.GetValidSpecialKeys(ValidSpecialKeys))
 		{
+			KeyItem^ Default = gcnew KeyItem();
+			Default->KeyCode = 0;
+			Default->KeyName = "None";
+			SpecKey_ComboBox->SelectedIndex = SpecKey_ComboBox->Items->Add(Default);
+
 			for (const MacroEntry& Entry : ValidSpecialKeys)
 			{
 				KeyItem^ Item = gcnew KeyItem();

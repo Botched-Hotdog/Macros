@@ -9,9 +9,10 @@ Program allows user to create a set of keystokes to be played back after pressin
 ### Helpful Links
 I used the information at the following links help create this program.
 
-Keycodes: https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-Windows Get Keyboard State: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate?redirectedfrom=MSDN
-Windows Send Input Function: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput
-C++ WinForm Tutorial: https://www.youtube.com/watch?v=zv8DkkhBNR0
-C++/CLI Explanation: https://en.wikipedia.org/wiki/C%2B%2B/CLI
-Threads: https://en.cppreference.com/w/cpp/thread/thread & https://en.cppreference.com/w/cpp/thread/mutex
+Keycodes: https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes  <br />
+Windows Get Keyboard State: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate?redirectedfrom=MSDN  <br />
+Windows Send Input Function: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput  <br />
+C++ WinForm Tutorial: https://www.youtube.com/watch?v=zv8DkkhBNR0  <br />
+C++/CLI Explanation: https://en.wikipedia.org/wiki/C%2B%2B/CLI  <br />
+File Management: https://cplusplus.com/reference/fstream/fstream/ & https://www.youtube.com/watch?v=CAqX8YT4lHI  <br />
+Threads: https://en.cppreference.com/w/cpp/thread/thread & https://en.cppreference.com/w/cpp/thread/mutex  <br />

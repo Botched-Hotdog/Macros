@@ -1,4 +1,7 @@
 #include "Settings.h"
+#include <fstream>
+
+#include <sstream>
 
 Settings GlobalSettings;
 
@@ -9,7 +12,7 @@ Macro* Settings::FindMacroByHotKey(const BYTE Hotkey)
 
 	for (Macro& ExistingMacro : Macros)
 	{
-		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		if (Hotkey == ExistingMacro.HotKey)
 		{
 			Result = &ExistingMacro;
 			break;
@@ -17,6 +20,122 @@ Macro* Settings::FindMacroByHotKey(const BYTE Hotkey)
 	}
 
 	return Result;
+}
+
+
+bool Settings::Initialize(const char* FileName)
+{
+	bool Success = false;
+	
+	if (FileName)
+	{
+		IniFile = FileName;
+		if (ReadFromIni())
+		{
+			Success = true;
+		}
+	}
+
+	return Success;
+}
+
+bool Settings::WriteToIni()
+{
+	bool Success = false;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);	
+	
+	std::ofstream OutputFile;
+	OutputFile.open(IniFile);
+	if (OutputFile.is_open())
+	{
+		for (const Macro ExistingMacro : Macros)
+		{
+			OutputFile << "\n[ " + std::to_string(ExistingMacro.HotKey) + ' ' + std::to_string(ExistingMacro.Loops);
+			
+			for (const KeyStroke ExistingKeyStroke : ExistingMacro.Actions)
+			{
+				OutputFile << "\n- " +
+					std::to_string(ExistingKeyStroke.SpecialKey) + ' ' +
+					std::to_string(ExistingKeyStroke.Key) + ' ' +
+					std::to_string(ExistingKeyStroke.MSDelay);
+			}
+
+			OutputFile << "\n]";
+		}
+		
+		Success = true;
+		OutputFile.close();
+	}
+	
+	return Success;
+}
+
+bool Settings::ReadFromIni()
+{
+	bool Success = false;
+	std::unique_lock<std::shared_mutex> lock(ProtectSettings);
+
+	std::ifstream InputFile;
+	InputFile.open(IniFile);
+	if (InputFile.is_open())
+	{
+		Macros.clear();
+
+		Macro NewEntry;
+
+		NewEntry.Actions.clear();
+		NewEntry.HotKey = 0;
+		NewEntry.Loops = false;
+
+		std::string Line;
+		while (std::getline(InputFile, Line))
+		{
+			if (Line[0] == '[')  // Macro Start
+			{			
+				std::stringstream Stream(Line);
+				
+				char Discard;
+				bool bLoops;
+				BYTE HotKey;
+
+				Stream >> Discard >> HotKey >> bLoops;
+
+				NewEntry.HotKey = HotKey;
+				NewEntry.Loops = bLoops;
+			}
+			else if (Line[0] == ']')  // Macro End
+			{
+				Macros.push_back(NewEntry);
+
+				NewEntry.Actions.clear();
+				NewEntry.HotKey = 0;
+				NewEntry.Loops = false;
+			}
+			else if (Line[0] == '-')  // Keystroke Entry
+			{
+				std::stringstream Stream(Line);
+
+				char Discard;
+				BYTE KeyCode;
+				BYTE SpecialKeyCode;
+				DWORD MSDelay;
+
+				Stream >> Discard >> SpecialKeyCode >> KeyCode >> MSDelay;
+
+				KeyStroke NewKeystroke;
+				NewKeystroke.SpecialKey = SpecialKeyCode;
+				NewKeystroke.Key = KeyCode;
+				NewKeystroke.MSDelay = MSDelay;
+
+				NewEntry.Actions.push_back(NewKeystroke);
+			}
+		}
+
+		Success = true;
+		InputFile.close();
+	}
+
+	return Success;
 }
 
 
@@ -53,7 +172,7 @@ bool Settings::RemoveMacro(const BYTE Hotkey)
 
 	for (int i = 0; i < Macros.size(); i++)
 	{
-		if (Hotkey == static_cast<BYTE>(Macros[i].HotKey))
+		if (Hotkey == Macros[i].HotKey)
 		{
 			Macros.erase(Macros.begin() + i);
 
@@ -73,7 +192,7 @@ bool Settings::IsValidHotKey(const BYTE Hotkey)
 
 	for (const Macro& ExistingMacro : Macros)
 	{
-		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		if (Hotkey == ExistingMacro.HotKey)
 		{
 			Success = true;
 			break;
@@ -90,7 +209,7 @@ bool Settings::DoesMacroLoop(const BYTE Hotkey)
 
 	for (const Macro& ExistingMacro : Macros)
 	{
-		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		if (Hotkey == ExistingMacro.HotKey)
 		{
 			Success = ExistingMacro.Loops;
 			break;
@@ -108,7 +227,7 @@ bool Settings::GetMacroCopy(const BYTE Hotkey, Macro& CopyAddress)
 
 	for (const Macro& ExistingMacro : Macros)
 	{
-		if (Hotkey == static_cast<BYTE>(ExistingMacro.HotKey))
+		if (Hotkey == ExistingMacro.HotKey)
 		{
 			CopyAddress = ExistingMacro;  // Copy
 			
@@ -153,15 +272,15 @@ bool Settings::GetKeystrokesFromMacroCopy(const BYTE Hotkey, std::vector<Keystro
 		
 		for (const KeyStroke& ExistingKeystroke : ExistingMacro->Actions)
 		{
-			BYTE KeyCode = static_cast<BYTE>(ExistingKeystroke.Key);
-			BYTE SpecialKeyCode = static_cast<BYTE>(ExistingKeystroke.SpecialKey);
+			BYTE KeyCode = ExistingKeystroke.Key;
+			BYTE SpecialKeyCode = ExistingKeystroke.SpecialKey;
 
 			KeystrokeEntry NewEntry;
 
-			NewEntry.KeyCode = static_cast<BYTE>(KeyCode);
+			NewEntry.KeyCode = KeyCode;
 			NewEntry.KeyName = KeyLookupTable[KeyCode].Name;
 
-			NewEntry.SpecialKeyCode = static_cast<BYTE>(SpecialKeyCode);
+			NewEntry.SpecialKeyCode = SpecialKeyCode;
 			NewEntry.SpecialKeyName = KeyLookupTable[SpecialKeyCode].Name;
 
 			NewEntry.MSDelay = ExistingKeystroke.MSDelay;
