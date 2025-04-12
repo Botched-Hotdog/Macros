@@ -199,7 +199,7 @@ namespace Macros {
 				{
 					if (GlobalSettings.RemoveMacro(SelectedHotkey))
 					{
-						Redraw();
+						if (GlobalSettings.WriteToIni()) Redraw();
 					}
 					else // Macro Wasnt Found And Therfore Not Removed
 					{

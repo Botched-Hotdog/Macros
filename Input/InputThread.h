@@ -22,7 +22,7 @@ protected:
 public:
 	InputThread();
 
-	__inline bool IsThreadRunning() { return bShouldThreadRun; };
+	__inline bool IsThreadRunning() const { return bShouldThreadRun; };
 
 	bool RunThread();
 	void StopThread();

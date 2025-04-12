@@ -96,7 +96,7 @@ bool Settings::ReadFromIni()
 				
 				char Discard;
 				bool bLoops;
-				BYTE HotKey;
+				int HotKey;
 
 				Stream >> Discard >> HotKey >> bLoops;
 
@@ -116,8 +116,8 @@ bool Settings::ReadFromIni()
 				std::stringstream Stream(Line);
 
 				char Discard;
-				BYTE KeyCode;
-				BYTE SpecialKeyCode;
+				int KeyCode;
+				int SpecialKeyCode;
 				DWORD MSDelay;
 
 				Stream >> Discard >> SpecialKeyCode >> KeyCode >> MSDelay;
