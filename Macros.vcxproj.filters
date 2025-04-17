@@ -15,55 +15,66 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WinForm\MainForm.cpp">
+    <ClCompile Include="Source\Common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="Source\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input\InputManager.cpp">
+    <ClCompile Include="Source\Input\InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input\InputThread.cpp">
+    <ClCompile Include="Source\Input\BackgroundProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Settings\Settings.cpp">
+    <ClCompile Include="Source\WinForm\MainForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinForm\MacroEditForm.cpp">
+    <ClCompile Include="Source\Settings\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinForm\Common.cpp">
+    <ClCompile Include="Source\WinForm\MacroEditForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinForm\KeystrokeEditForm.cpp">
+    <ClCompile Include="Source\WinForm\KeystrokeEditForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WinForm\MainForm.h">
+    <ClInclude Include="Source\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InputManager.h">
+    <ClInclude Include="Source\Input\BackgroundProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\KeyData.h">
+    <ClInclude Include="Source\Input\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InputThread.h">
+    <ClInclude Include="Source\Input\KeyData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinForm\Common.h">
+    <ClInclude Include="Source\Settings\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Settings\Settings.h">
+    <ClInclude Include="Source\WinForm\KeystrokeEditForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinForm\MacroEditForm.h">
+    <ClInclude Include="Source\WinForm\MacroEditForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinForm\KeystrokeEditForm.h">
+    <ClInclude Include="Source\WinForm\MainForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Source\WinForm\MainForm.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Source\WinForm\MacroEditForm.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Source\WinForm\KeystrokeEditForm.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

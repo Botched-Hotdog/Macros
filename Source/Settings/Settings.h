@@ -4,18 +4,8 @@
 #include <shared_mutex>
 #include <Windows.h>
 
-struct MacroEntry  // Used By Main Form To Display Current Hotkeys
-{
-	BYTE KeyCode;
-	std::string KeyName;
-};
-struct KeystrokeEntry : public MacroEntry
-{
-	BYTE SpecialKeyCode;
-	std::string SpecialKeyName;
-
-	DWORD MSDelay;
-};
+struct MacroEntry;
+struct KeystrokeEntry;
 
 
 class Settings
@@ -25,14 +15,14 @@ protected:
 	BYTE RunningMacro;
 	bool bIsEditing;
 
-	//CSimpleIniA IniManager;
+
 	const char* IniFile;
 
 	std::shared_mutex ProtectSettings;
 public:
 	 bool Initialize(const char* FileName);
-	 bool WriteToIni();
-	 bool ReadFromIni();
+	 bool WriteToFile();
+	 bool ReadFromFile();
 
 	bool AddMacro(const Macro& NewMacro);
 	bool RemoveMacro(const BYTE Hotkey);

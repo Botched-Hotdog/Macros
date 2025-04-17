@@ -1,5 +1,5 @@
 #pragma once
-#include "Common.h"
+#include "../Common.h"
 #include "regex"
 
 #define MAX_DWORD_SIZE 4294967295
@@ -48,6 +48,7 @@ namespace Macros {
 	private: System::Windows::Forms::ComboBox^ Key_ComboBox;
 	private: System::Windows::Forms::ComboBox^ SpecKey_ComboBox;
 	private: System::Windows::Forms::TextBox^ Delay_TextBox;
+	private: System::Windows::Forms::Label^ Error_Text;
 
 
 
@@ -72,6 +73,7 @@ namespace Macros {
 			this->Key_ComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->SpecKey_ComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->Delay_TextBox = (gcnew System::Windows::Forms::TextBox());
+			this->Error_Text = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// Key_Label
@@ -101,7 +103,7 @@ namespace Macros {
 			this->Delay_Label->AutoSize = true;
 			this->Delay_Label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Delay_Label->Location = System::Drawing::Point(12, 98);
+			this->Delay_Label->Location = System::Drawing::Point(12, 84);
 			this->Delay_Label->Name = L"Delay_Label";
 			this->Delay_Label->Size = System::Drawing::Size(107, 20);
 			this->Delay_Label->TabIndex = 11;
@@ -152,17 +154,33 @@ namespace Macros {
 			this->Delay_TextBox->Anchor = System::Windows::Forms::AnchorStyles::Left;
 			this->Delay_TextBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Delay_TextBox->Location = System::Drawing::Point(125, 95);
+			this->Delay_TextBox->Location = System::Drawing::Point(125, 84);
 			this->Delay_TextBox->Name = L"Delay_TextBox";
 			this->Delay_TextBox->Size = System::Drawing::Size(347, 26);
 			this->Delay_TextBox->TabIndex = 15;
 			this->Delay_TextBox->TextChanged += gcnew System::EventHandler(this, &KeystrokeEditForm::Delay_TextBox_TextChanged);
+			// 
+			// Error_Text
+			// 
+			this->Error_Text->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
+			this->Error_Text->AutoSize = true;
+			this->Error_Text->BackColor = System::Drawing::SystemColors::Control;
+			this->Error_Text->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->Error_Text->ForeColor = System::Drawing::Color::Red;
+			this->Error_Text->Location = System::Drawing::Point(13, 118);
+			this->Error_Text->Name = L"Error_Text";
+			this->Error_Text->Size = System::Drawing::Size(13, 13);
+			this->Error_Text->TabIndex = 16;
+			this->Error_Text->Text = L"_";
+			this->Error_Text->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
 			// 
 			// KeystrokeEditForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(484, 176);
+			this->Controls->Add(this->Error_Text);
 			this->Controls->Add(this->Delay_TextBox);
 			this->Controls->Add(this->SpecKey_ComboBox);
 			this->Controls->Add(this->Key_ComboBox);
@@ -180,8 +198,8 @@ namespace Macros {
 
 		}
 #pragma endregion
-	public: KeyItem^ SelectedKeystrokeAddress;
-	private: KeyItem^ TempKeystroke;
+	public: KeystrokeItem^ SelectedKeystrokeAddress;
+	private: KeystrokeItem^ TempKeystroke;
 
 	private: System::Void KeystrokeEditForm_Load(System::Object^ sender, System::EventArgs^ e) 
 	{
@@ -193,7 +211,9 @@ namespace Macros {
 			return;
 		}
 
-		TempKeystroke = gcnew KeyItem;
+		Error_Text->Text = "";
+
+		TempKeystroke = gcnew KeystrokeItem;
 
 		TempKeystroke->KeyName = SelectedKeystrokeAddress->KeyName;
 		TempKeystroke->KeyCode = SelectedKeystrokeAddress->KeyCode;
@@ -255,6 +275,8 @@ namespace Macros {
 		{
 			TempKeystroke->KeyCode = Item->KeyCode;
 			TempKeystroke->KeyName = Item->KeyName;
+
+			Error_Text->Text = "";
 		}
 	}
 
@@ -279,6 +301,8 @@ namespace Macros {
 		if (TextEntry != NonNumericCharactersRemoved)
 		{
 			Delay_TextBox->Text = ConvertToManagedString(NonNumericCharactersRemoved);
+
+			Error_Text->Text = "";
 		}
 	}
 
@@ -290,24 +314,35 @@ namespace Macros {
 		int DelayEntry = std::stoi(ConvertToUnmanagedString(Delay_TextBox->Text));
 		bool bIsValidDelay = (DelayEntry >= 1) && (DelayEntry < MAX_DWORD_SIZE);
 
-		if (bIsValidKey && bIsValidDelay)
+		if (bIsValidKey)
 		{	
-			if (SelectedKeystrokeAddress)
+			if (bIsValidDelay)
 			{
-				SelectedKeystrokeAddress->KeyName = TempKeystroke->KeyName;
-				SelectedKeystrokeAddress->KeyCode = TempKeystroke->KeyCode;
-				SelectedKeystrokeAddress->SpecialKeyName = TempKeystroke->SpecialKeyName;
-				SelectedKeystrokeAddress->SpecialKeyCode = TempKeystroke->SpecialKeyCode;
-				SelectedKeystrokeAddress->MSDelay = (DWORD)DelayEntry;
+				if (SelectedKeystrokeAddress)
+				{
+					SelectedKeystrokeAddress->KeyName = TempKeystroke->KeyName;
+					SelectedKeystrokeAddress->KeyCode = TempKeystroke->KeyCode;
+					SelectedKeystrokeAddress->SpecialKeyName = TempKeystroke->SpecialKeyName;
+					SelectedKeystrokeAddress->SpecialKeyCode = TempKeystroke->SpecialKeyCode;
+					SelectedKeystrokeAddress->MSDelay = (DWORD)DelayEntry;
 
-				DialogResult = System::Windows::Forms::DialogResult::OK;
+					DialogResult = System::Windows::Forms::DialogResult::OK;
+				}
+				else
+				{
+					DialogResult = System::Windows::Forms::DialogResult::Abort;
+				}
+
+				Close();
 			}
 			else
 			{
-				DialogResult = System::Windows::Forms::DialogResult::Abort;
+				Error_Text->Text = "Invalid Delay";
 			}
-		
-			Close();
+		}
+		else
+		{
+			Error_Text->Text = "Key must be selected";
 		}
 	}
 };

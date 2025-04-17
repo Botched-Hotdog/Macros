@@ -1,5 +1,5 @@
 #pragma once
-#include "Common.h"
+#include "../Common.h"
 #include "MacroEditForm.h"
 
 
@@ -44,6 +44,7 @@ namespace Macros {
 	private: System::Windows::Forms::ListView^ Macros_List;
 	private: System::Windows::Forms::ColumnHeader^ KeyCode_ColumnHeader;
 	private: System::Windows::Forms::ColumnHeader^ KeyName_ColumnHeader;
+	private: System::Windows::Forms::Label^ Error_Text;
 
 
 
@@ -72,6 +73,7 @@ namespace Macros {
 			this->Macros_List = (gcnew System::Windows::Forms::ListView());
 			this->KeyCode_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
 			this->KeyName_ColumnHeader = (gcnew System::Windows::Forms::ColumnHeader());
+			this->Error_Text = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// Add_Button
@@ -132,12 +134,28 @@ namespace Macros {
 			this->KeyName_ColumnHeader->Text = L"Key Name";
 			this->KeyName_ColumnHeader->Width = 220;
 			// 
+			// Error_Text
+			// 
+			this->Error_Text->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
+			this->Error_Text->AutoSize = true;
+			this->Error_Text->BackColor = System::Drawing::SystemColors::Control;
+			this->Error_Text->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->Error_Text->ForeColor = System::Drawing::Color::Red;
+			this->Error_Text->Location = System::Drawing::Point(353, 86);
+			this->Error_Text->Name = L"Error_Text";
+			this->Error_Text->Size = System::Drawing::Size(13, 13);
+			this->Error_Text->TabIndex = 10;
+			this->Error_Text->Text = L"_";
+			this->Error_Text->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::SystemColors::Control;
 			this->ClientSize = System::Drawing::Size(484, 291);
+			this->Controls->Add(this->Error_Text);
 			this->Controls->Add(this->Macros_List);
 			this->Controls->Add(this->Remove_Button);
 			this->Controls->Add(this->Add_Button);
@@ -148,12 +166,14 @@ namespace Macros {
 			this->Text = L"Macros";
 			this->Load += gcnew System::EventHandler(this, &MainForm::MainForm_Load);
 			this->ResumeLayout(false);
+			this->PerformLayout();
 
 		}
 #pragma endregion
 	private: void Redraw()
 	{
 		Macros_List->Items->Clear();
+		Error_Text->Text = "";
 
 		std::vector<MacroEntry> AvaliableMacros;
 		if (GlobalSettings.GetExistingMacrosCopy(AvaliableMacros))
@@ -199,18 +219,18 @@ namespace Macros {
 				{
 					if (GlobalSettings.RemoveMacro(SelectedHotkey))
 					{
-						if (GlobalSettings.WriteToIni()) Redraw();
+						if (GlobalSettings.WriteToFile()) Redraw();
 					}
 					else // Macro Wasnt Found And Therfore Not Removed
 					{
-						// Do Error Popup or something
+						Error_Text->Text = "Macro not found";
 					}
 				}
 			}
 		}
 		else  // Error. nothing to remove
 		{
-			// Do Error Popup or something
+			Error_Text->Text = "No macro selected";
 		}
 	}
 

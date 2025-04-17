@@ -1,14 +1,9 @@
-#include "InputThread.h"
+#include "./BackgroundProcess.h"
 #include "../Settings/Settings.h"
 #include <chrono>
 
 
-InputThread::InputThread()
-{
-	// OldKeyBoardState[256] = {0};
-}
-
-bool InputThread::RunThread()
+bool BackgroundProcess::RunThread()
 {
 	bool Success = false;
 
@@ -21,7 +16,7 @@ bool InputThread::RunThread()
 
 	return Success;
 }
-void InputThread::StopThread()
+void BackgroundProcess::StopThread()
 {
 	bShouldThreadRun = false;
 
@@ -31,11 +26,11 @@ void InputThread::StopThread()
 	}
 }
 
-void InputThread::ThreadEntry(InputThread* This)
+void BackgroundProcess::ThreadEntry(BackgroundProcess* This)
 {
 	if (This) This->ThreadBody();
 }
-void InputThread::ThreadBody()
+void BackgroundProcess::ThreadBody()
 {
 	
 	while (bShouldThreadRun)
@@ -56,7 +51,8 @@ void InputThread::ThreadBody()
 	}
 }
 
-BYTE InputThread::CheckForHotkey()
+
+BYTE BackgroundProcess::CheckForHotkey()
 {
 	BYTE CurrentKeyboardState[256] = { 0 };
 	BYTE KeyCode = 0;
@@ -88,7 +84,7 @@ BYTE InputThread::CheckForHotkey()
 }
 
 
-void InputThread::ProceessMacro(const BYTE Hotkey)
+void BackgroundProcess::ProceessMacro(const BYTE Hotkey)
 {
 	Macro MacroCopy;
 	KeyStroke CurrentKeyStroke;
@@ -152,8 +148,8 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 						{
 							GlobalSettings.SetRunningMacro(KeyPress);
 							
-							int MacroSize = MacroCopy.Actions.size();
-							int CurrentIndex = 0;
+							MacroSize = MacroCopy.Actions.size();
+							CurrentIndex = 0;
 						}
 					}
 				}
@@ -164,7 +160,8 @@ void InputThread::ProceessMacro(const BYTE Hotkey)
 	}
 }
 
-void InputThread::PlayKey(const KeyStroke Key)
+
+void BackgroundProcess::PlayKey(const KeyStroke Key)
 {
 	bool Success = false;
 	

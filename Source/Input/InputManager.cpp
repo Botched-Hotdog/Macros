@@ -1,4 +1,4 @@
-#include "InputManager.h"
+#include "./InputManager.h"
 
 using namespace std;
 
@@ -7,12 +7,12 @@ InputManager::InputManager()
 	std::memset(RegInput, 0, sizeof(RegInput));
 	std::memset(SpecInput, 0, sizeof(SpecInput));
 }
-
 InputManager::~InputManager()
 {
 	std::memset(RegInput, 0, sizeof(RegInput));
 	std::memset(SpecInput, 0, sizeof(SpecInput));
 }
+
 
 void InputManager::SetMouseFlags(DWORD* DownFlag, DWORD* UpFlag, const BYTE Key)
 {
@@ -69,7 +69,7 @@ bool InputManager::MakeSpecialInput(const BYTE SpecialKey, const BYTE Key)
 	if (KeyCode > 6) // Keyboard
 	{
 		InputType = INPUT_KEYBOARD;
-		DownFlag = KEYEVENTF_EXTENDEDKEY;
+		DownFlag = 0;
 		UpFlag = KEYEVENTF_KEYUP;
 
 	}
@@ -83,7 +83,6 @@ bool InputManager::MakeSpecialInput(const BYTE SpecialKey, const BYTE Key)
 
 	SpecInput[0].type = INPUT_KEYBOARD;
 	SpecInput[0].ki.wVk = SpecialKeyCode;
-	SpecInput[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
 
 	SpecInput[1].type = InputType;
 	SpecInput[1].ki.wVk = KeyCode;
@@ -113,7 +112,7 @@ bool InputManager::MakeInput(const BYTE Key)
 	if (KeyCode > 6) // Keyboard
 	{
 		InputType = INPUT_KEYBOARD;
-		DownFlag = KEYEVENTF_EXTENDEDKEY;
+		DownFlag = 0;
 		UpFlag = KEYEVENTF_KEYUP;
 		
 	}

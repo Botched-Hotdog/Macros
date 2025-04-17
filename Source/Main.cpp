@@ -1,20 +1,20 @@
 #include "./WinForm/MainForm.h"
-#include "./Input/InputThread.h"
+#include "./Input/BackgroundProcess.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
 
 void Main(array<String^>^ args)
 {	
-	InputThread BackgroundProcess;
+	BackgroundProcess Process;
 
-	if (BackgroundProcess.RunThread())
+	if (Process.RunThread())
 	{
 		Application::EnableVisualStyles();
 		Application::SetCompatibleTextRenderingDefault(false);
 		Macros::MainForm form;
 		Application::Run(% form);
 
-		BackgroundProcess.StopThread();
+		Process.StopThread();
 	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Common.h"
+#include "../Common.h"
 #include "KeystrokeEditForm.h"
 
 
@@ -56,6 +56,7 @@ namespace Macros {
 
 	private: System::Windows::Forms::ColumnHeader^ KeyName_ColumnHeader;
 	private: System::Windows::Forms::ColumnHeader^ MSDelay_ColumnHeader;
+	private: System::Windows::Forms::Label^ Error_Text;
 	protected:
 
 
@@ -81,6 +82,7 @@ namespace Macros {
 			this->Hotkey_ComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->Loops_CheckBox = (gcnew System::Windows::Forms::CheckBox());
 			this->Hotkey_Label = (gcnew System::Windows::Forms::Label());
+			this->Error_Text = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// KeyStrokes_List
@@ -192,11 +194,27 @@ namespace Macros {
 			this->Hotkey_Label->TabIndex = 8;
 			this->Hotkey_Label->Text = L"Hotkey:";
 			// 
+			// Error_Text
+			// 
+			this->Error_Text->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
+			this->Error_Text->AutoSize = true;
+			this->Error_Text->BackColor = System::Drawing::SystemColors::Control;
+			this->Error_Text->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->Error_Text->ForeColor = System::Drawing::Color::Red;
+			this->Error_Text->Text = "_";
+			this->Error_Text->Location = System::Drawing::Point(353, 233);
+			this->Error_Text->Name = L"Error_Text";
+			this->Error_Text->Size = System::Drawing::Size(0, 13);
+			this->Error_Text->TabIndex = 9;
+			this->Error_Text->TextAlign = System::Drawing::ContentAlignment::MiddleLeft;
+			// 
 			// MacroEditForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(484, 291);
+			this->Controls->Add(this->Error_Text);
 			this->Controls->Add(this->Hotkey_Label);
 			this->Controls->Add(this->Loops_CheckBox);
 			this->Controls->Add(this->Hotkey_ComboBox);
@@ -217,7 +235,7 @@ namespace Macros {
 	public: BYTE OldHotKey;
 
 	private: BYTE SelectedHotKey;
-	private: List<KeyItem^>^ TempKeystrokes;
+	private: List<KeystrokeItem^>^ TempKeystrokes;
 
 	private: void Redraw()
 	{
@@ -225,7 +243,7 @@ namespace Macros {
 
 		for (int i = 0; i < TempKeystrokes->Count; i++)
 		{
-			KeyItem^ Keystroke = TempKeystrokes[i];
+			KeystrokeItem^ Keystroke = TempKeystrokes[i];
 
 			ListViewItem^ lvi = gcnew ListViewItem(Keystroke->ToString());
 			lvi->Tag = i;
@@ -243,7 +261,7 @@ namespace Macros {
 			
 			for (const KeystrokeEntry& Entry : KeystrokesCopy)
 			{
-				KeyItem^ NewItem = gcnew KeyItem;
+				KeystrokeItem^ NewItem = gcnew KeystrokeItem;
 				
 				NewItem->KeyCode = Entry.KeyCode;
 				NewItem->SpecialKeyCode = Entry.SpecialKeyCode;
@@ -260,19 +278,18 @@ namespace Macros {
 
 	private: System::Void MacroEditForm_Load(System::Object^ sender, System::EventArgs^ e) 
 	{
-		KeyStrokes_List->FullRowSelect = true;
-		KeyStrokes_List->GridLines = true;
+		Error_Text->Text = "";
 
-		TempKeystrokes = gcnew List<KeyItem^>();
+		TempKeystrokes = gcnew List<KeystrokeItem^>();
 
 		SelectedHotKey = OldHotKey;
 		if (SelectedHotKey != 0) LoadKeystrokesFromSettings();
 
 
-		std::vector<MacroEntry> ValidKeystrokes;
-		if (GlobalSettings.GetValidHotKeys(ValidKeystrokes))
+		std::vector<MacroEntry> ValidHotkeys;
+		if (GlobalSettings.GetValidHotKeys(ValidHotkeys))
 		{
-			for (const MacroEntry& Entry : ValidKeystrokes)
+			for (const MacroEntry& Entry : ValidHotkeys)
 			{
 				KeyItem^ Item = gcnew KeyItem();
 				Item->KeyCode = Entry.KeyCode;
@@ -321,38 +338,51 @@ namespace Macros {
 
 	private: System::Void Ok_Button_Click(System::Object^ sender, System::EventArgs^ e) 
 	{				
-		bool bIsHotkeyValid = (!GlobalSettings.IsValidHotKey(SelectedHotKey) || SelectedHotKey == OldHotKey) && SelectedHotKey != 0;
-		bool bIsKeystrokeListValid = TempKeystrokes->Count > 0;
-
-		if (bIsHotkeyValid && bIsKeystrokeListValid)
+		if (SelectedHotKey != 0)
 		{
-			Macro NewMacro;
-			NewMacro.Loops = Loops_CheckBox->Checked;
-			NewMacro.HotKey = SelectedHotKey;
-
-			NewMacro.Actions.reserve(TempKeystrokes->Count);
-			for each (KeyItem^ Keystroke in TempKeystrokes)
+			if (!GlobalSettings.IsValidHotKey(SelectedHotKey) || SelectedHotKey == OldHotKey)
 			{
-				KeyStroke NewKey;
-				NewKey.Key = Keystroke->KeyCode;
-				NewKey.SpecialKey = Keystroke->SpecialKeyCode;
-				NewKey.MSDelay = Keystroke->MSDelay;
+				if (TempKeystrokes->Count > 0)
+				{
+					Error_Text->Text = "";
 
-				NewMacro.Actions.push_back(NewKey);
-			}
-			
-			if (SelectedHotKey != OldHotKey && OldHotKey != 0)
-			{
-				if (GlobalSettings.OverrideMacro(OldHotKey, NewMacro)) CloseWindow();
+					Macro NewMacro;
+					NewMacro.Loops = Loops_CheckBox->Checked;
+					NewMacro.HotKey = SelectedHotKey;
+
+					NewMacro.Actions.reserve(TempKeystrokes->Count);
+					for each (KeystrokeItem ^ Keystroke in TempKeystrokes)
+					{
+						KeyStroke NewKey;
+						NewKey.Key = Keystroke->KeyCode;
+						NewKey.SpecialKey = Keystroke->SpecialKeyCode;
+						NewKey.MSDelay = Keystroke->MSDelay;
+
+						NewMacro.Actions.push_back(NewKey);
+					}
+
+					if (SelectedHotKey != OldHotKey && OldHotKey != 0)
+					{
+						if (GlobalSettings.OverrideMacro(OldHotKey, NewMacro)) CloseWindow();
+					}
+					else
+					{
+						if (GlobalSettings.AddMacro(NewMacro)) CloseWindow();
+					}
+				}
+				else
+				{
+					Error_Text->Text = "Needs at least 1 entry";
+				}
 			}
 			else
 			{
-				if (GlobalSettings.AddMacro(NewMacro)) CloseWindow();
+				Error_Text->Text = "Hotkey already in use";
 			}
 		}
 		else
 		{
-			// Prompt User That hotkey selection is invalid
+			Error_Text->Text = "Requires valid hotkey";
 		}
 	}
 	
@@ -361,7 +391,11 @@ namespace Macros {
 	{
 		KeyItem^ Item = (KeyItem^)Hotkey_ComboBox->SelectedItem;
 
-		if (SelectedHotKey != Item->KeyCode) SelectedHotKey = Item->KeyCode;
+		if (SelectedHotKey != Item->KeyCode)
+		{
+			Error_Text->Text = "";
+			SelectedHotKey = Item->KeyCode;
+		}
 	}
 
 
@@ -369,7 +403,7 @@ namespace Macros {
 	{
 		KeystrokeEditForm^ EditWindow = gcnew KeystrokeEditForm;
 
-		KeyItem^ SelectedItem = nullptr;
+		KeystrokeItem^ SelectedItem = nullptr;
 		bool bAlreadyExists = false;
 
 		if (KeyStrokes_List->SelectedItems->Count == 1)
@@ -382,7 +416,7 @@ namespace Macros {
 		}
 		else
 		{
-			SelectedItem = gcnew KeyItem;
+			SelectedItem = gcnew KeystrokeItem;
 		}
 
 		EditWindow->SelectedKeystrokeAddress = SelectedItem;
@@ -395,20 +429,21 @@ namespace Macros {
 				TempKeystrokes->Add(SelectedItem);
 			}
 			
+			Error_Text->Text = "";
 			Redraw();
 		}
 	}
 
 	private: void CloseWindow()
 	{
-		if (GlobalSettings.WriteToIni())
+		if (GlobalSettings.WriteToFile())
 		{
 			DialogResult = System::Windows::Forms::DialogResult::OK;
 			Close();
 		}
 		else
 		{
-
+			Error_Text->Text = "Failed to save Macro";
 		}
 	}
 };

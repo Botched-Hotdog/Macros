@@ -1,4 +1,5 @@
-#include "Settings.h"
+#include "./Settings.h"
+#include "../Common.h"
 #include <fstream>
 
 #include <sstream>
@@ -30,7 +31,7 @@ bool Settings::Initialize(const char* FileName)
 	if (FileName)
 	{
 		IniFile = FileName;
-		if (ReadFromIni())
+		if (ReadFromFile())
 		{
 			Success = true;
 		}
@@ -39,7 +40,7 @@ bool Settings::Initialize(const char* FileName)
 	return Success;
 }
 
-bool Settings::WriteToIni()
+bool Settings::WriteToFile()
 {
 	bool Success = false;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);	
@@ -70,7 +71,7 @@ bool Settings::WriteToIni()
 	return Success;
 }
 
-bool Settings::ReadFromIni()
+bool Settings::ReadFromFile()
 {
 	bool Success = false;
 	std::unique_lock<std::shared_mutex> lock(ProtectSettings);

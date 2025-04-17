@@ -2,7 +2,7 @@
 
 ## Description
 Final project for ENGR 1410. 
-Program allows user to create a set of keystokes to be played back after pressing a designated hotkey.
+Program allows user to create a set of keystrokes to be played back after pressing a designated hotkey.
 
 ## Features
 

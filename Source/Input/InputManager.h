@@ -1,6 +1,6 @@
 #pragma once
-#include "KeyData.h"
-// #include <Windows.h>
+#include "./KeyData.h"
+
 
 class InputManager
 {
@@ -17,10 +17,10 @@ public:
 	static bool IsSpecialKey(const WORD KeyCode);
 
 
-	// Used For Inputs Such as: CTRL + "Key" | SHIFT + "Key" (Capital Letters). Returns True For Success
+	// Used For Inputs Such as: CTRL + "Key" | SHIFT + "Key" (Capital Letters).
 	bool MakeSpecialInput(const BYTE SpecialKey, const BYTE Key);
 	
-	// Used For Basic Key and Mouse Inputs. Returns True For Success
+	// Used For Basic Key and Mouse Inputs.
 	bool MakeInput(const BYTE Key);
 };
 

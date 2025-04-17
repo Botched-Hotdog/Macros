@@ -1,10 +1,9 @@
 #pragma once
 #include <thread>
-#include "InputManager.h"
+#include "./InputManager.h"
 
-class Settings;
 
-class InputThread
+class BackgroundProcess
 {
 protected:
 	InputManager InputManager;
@@ -20,14 +19,14 @@ protected:
 
 
 public:
-	InputThread();
+	BackgroundProcess() = default;
 
 	__inline bool IsThreadRunning() const { return bShouldThreadRun; };
 
 	bool RunThread();
 	void StopThread();
 
-	static void ThreadEntry(InputThread* This); // static function is required to use thread. std::thread(StaticFunction, this) 
+	static void ThreadEntry(BackgroundProcess* This); // static function is required to use thread. std::thread(StaticFunction, this) 
 	void ThreadBody();
 };
 
